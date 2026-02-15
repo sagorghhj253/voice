@@ -323,7 +323,7 @@
             box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.08), -6px -6px 12px rgba(255, 255, 255, 0.9);
         }
 
-        /* New Sentence Control Buttons */
+        /* Sentence Control Buttons */
         .sentence-controls {
             display: flex;
             gap: 12px;
@@ -454,7 +454,76 @@
             margin-left: 2px;
         }
 
-        /* Graph Container */
+        /* Waveform Graph Container */
+        .waveform-container {
+            height: 120px;
+            margin: 20px 0;
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.02), inset -3px -3px 8px rgba(255,255,255,0.8);
+        }
+
+        .waveform-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #4a5b6e;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .waveform-title span {
+            color: #5a7af0;
+            font-size: 12px;
+        }
+
+        .waveform-graph {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2px;
+            height: 70px;
+        }
+
+        .wave-bar {
+            flex: 1;
+            background: linear-gradient(to top, #5a7af0, #8aa4ff);
+            border-radius: 3px 3px 0 0;
+            transition: height 0.05s ease;
+            min-height: 2px;
+            max-height: 100%;
+            box-shadow: 0 -2px 5px rgba(90, 122, 240, 0.2);
+        }
+
+        /* Frequency Spectrum Graph */
+        .spectrum-container {
+            height: 100px;
+            margin: 15px 0;
+            padding: 10px 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.02);
+        }
+
+        .spectrum-graph {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 80px;
+        }
+
+        .freq-bar {
+            flex: 1;
+            background: linear-gradient(to top, #5a7af0, #8aa4ff);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.1s ease;
+            min-height: 2px;
+            box-shadow: 0 -2px 5px rgba(90, 122, 240, 0.2);
+        }
+
+        /* Graph Container (Legacy) */
         .graph-container {
             height: 100px;
             margin-top: 15px;
@@ -766,7 +835,7 @@
                     <button class="voice-btn" id="stopBtn" disabled>⏹ Stop</button>
                 </div>
                 
-                <!-- New Sentence Control Buttons - Repeat and Next -->
+                <!-- Sentence Control Buttons - Repeat and Next -->
                 <div class="sentence-controls">
                     <button class="sentence-btn repeat-btn" id="repeatBtn" disabled>
                         <span>🔄</span> Repeat Sentence
@@ -799,11 +868,33 @@
                 </div>
             </div>
 
-            <!-- Medium Card - Audio Features -->
+            <!-- Medium Card - Audio Features with Waveform -->
             <div class="card medium-card">
                 <div class="card-icon">📊</div>
                 <div class="card-title">Audio Analysis</div>
                 <div class="card-subtitle">Real-time voice metrics</div>
+                
+                <!-- Waveform Graph -->
+                <div class="waveform-container">
+                    <div class="waveform-title">
+                        <span>🎵 Waveform</span>
+                        <span id="waveformStatus">Waiting for audio...</span>
+                    </div>
+                    <div class="waveform-graph" id="waveformGraph">
+                        <!-- 30 waveform bars will be generated here -->
+                    </div>
+                </div>
+                
+                <!-- Frequency Spectrum -->
+                <div class="spectrum-container">
+                    <div class="waveform-title">
+                        <span>📈 Frequency Spectrum</span>
+                        <span id="spectrumStatus">-</span>
+                    </div>
+                    <div class="spectrum-graph" id="spectrumGraph">
+                        <!-- 20 frequency bars will be generated here -->
+                    </div>
+                </div>
                 
                 <div class="audio-stats">
                     <div class="stat-item">
@@ -824,19 +915,10 @@
                     </div>
                 </div>
 
-                <!-- Mini Graph -->
+                <!-- Mini Graph (Legacy) -->
                 <div class="graph-container">
                     <div class="graph-bars" id="audioGraph">
-                        <div class="bar" style="height: 30%"></div>
-                        <div class="bar" style="height: 45%"></div>
-                        <div class="bar" style="height: 60%"></div>
-                        <div class="bar" style="height: 40%"></div>
-                        <div class="bar" style="height: 75%"></div>
-                        <div class="bar" style="height: 55%"></div>
-                        <div class="bar" style="height: 80%"></div>
-                        <div class="bar" style="height: 35%"></div>
-                        <div class="bar" style="height: 50%"></div>
-                        <div class="bar" style="height: 65%"></div>
+                        <!-- 10 bars will be generated here -->
                     </div>
                 </div>
             </div>
@@ -1010,6 +1092,10 @@
         const voiceSelect = document.getElementById('voiceSelect');
         const voiceSpeedInput = document.getElementById('voiceSpeed');
         const speedValue = document.getElementById('speedValue');
+        const waveformGraph = document.getElementById('waveformGraph');
+        const spectrumGraph = document.getElementById('spectrumGraph');
+        const waveformStatus = document.getElementById('waveformStatus');
+        const spectrumStatus = document.getElementById('spectrumStatus');
 
         // Audio visualization elements
         const rmsValue = document.getElementById('rmsValue');
@@ -1017,6 +1103,36 @@
         const centroidValue = document.getElementById('centroidValue');
         const accuracyValue = document.getElementById('accuracyValue');
         const audioGraph = document.getElementById('audioGraph');
+
+        // Initialize waveform and spectrum graphs
+        function initGraphs() {
+            // Create waveform bars (30 bars)
+            waveformGraph.innerHTML = '';
+            for (let i = 0; i < 30; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'wave-bar';
+                bar.style.height = '2px';
+                waveformGraph.appendChild(bar);
+            }
+            
+            // Create spectrum bars (20 bars)
+            spectrumGraph.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'freq-bar';
+                bar.style.height = '2px';
+                spectrumGraph.appendChild(bar);
+            }
+            
+            // Create audio graph bars (10 bars)
+            audioGraph.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = '2px';
+                audioGraph.appendChild(bar);
+            }
+        }
 
         // Load available voices
         function loadVoices() {
@@ -1067,6 +1183,7 @@
             if (availableVoices.length === 0) {
                 loadVoices();
             }
+            initGraphs();
         }, 500);
 
         // Login handler
@@ -1134,7 +1251,7 @@
                 startSessionBtn.disabled = true;
                 recordBtn.disabled = false;
                 repeatBtn.disabled = false;
-                nextSentenceBtn.disabled = true; // Initially disabled until practice
+                nextSentenceBtn.disabled = false; // Always enabled now
                 
                 // Start session timer
                 seconds = 0;
@@ -1171,7 +1288,7 @@
             }
         });
 
-        // Repeat button - NEW
+        // Repeat button
         repeatBtn.addEventListener('click', function() {
             if (currentSentence) {
                 speak(currentSentence);
@@ -1179,10 +1296,9 @@
             }
         });
 
-        // Next sentence button
+        // Next sentence button - Always enabled
         nextSentenceBtn.addEventListener('click', function() {
             loadNextSentence();
-            nextSentenceBtn.disabled = true; // Disable until next practice
         });
 
         // Initialize initial listening for name
@@ -1278,6 +1394,8 @@
                 recordBtn.textContent = '🔴 Recording';
                 recordBtn.classList.add('active');
                 stopBtn.disabled = false;
+                waveformStatus.textContent = '🔴 Recording...';
+                spectrumStatus.textContent = '🎤 Live';
                 
                 // Start audio analysis
                 analyzeAudio();
@@ -1325,6 +1443,23 @@
             recordBtn.textContent = '🎤 Record';
             recordBtn.classList.remove('active');
             stopBtn.disabled = true;
+            waveformStatus.textContent = 'Stopped';
+            spectrumStatus.textContent = '-';
+            
+            // Reset graphs to baseline
+            resetGraphs();
+        }
+
+        // Reset graphs to baseline
+        function resetGraphs() {
+            const waveBars = document.querySelectorAll('.wave-bar');
+            waveBars.forEach(bar => bar.style.height = '2px');
+            
+            const freqBars = document.querySelectorAll('.freq-bar');
+            freqBars.forEach(bar => bar.style.height = '2px');
+            
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => bar.style.height = '2px');
         }
 
         // Analyze audio features
@@ -1334,13 +1469,14 @@
             const dataArray = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(dataArray);
             
+            const timeData = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteTimeDomainData(timeData);
+            
             // Calculate RMS
             const rms = Math.sqrt(dataArray.reduce((sum, val) => sum + val * val, 0) / dataArray.length);
             rmsValue.textContent = (rms / 2.55).toFixed(1);
             
             // Calculate zero-crossing rate
-            const timeData = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteTimeDomainData(timeData);
             let zeroCrossings = 0;
             for (let i = 1; i < timeData.length; i++) {
                 if ((timeData[i - 1] < 128 && timeData[i] >= 128) || 
@@ -1360,20 +1496,32 @@
             const centroid = sum > 0 ? weightedSum / sum : 0;
             centroidValue.textContent = Math.round(centroid * 10);
             
-            // Update graph
-            updateGraph(dataArray);
+            // Update waveform graph (30 bars)
+            const waveBars = document.querySelectorAll('.wave-bar');
+            for (let i = 0; i < waveBars.length; i++) {
+                const index = Math.floor(i * (timeData.length / waveBars.length));
+                const value = (timeData[index] - 128) / 128; // Convert to -1 to 1 range
+                const height = Math.abs(value) * 50 + 5; // Scale to 5-55px
+                waveBars[i].style.height = height + 'px';
+            }
             
-            animationFrame = requestAnimationFrame(analyzeAudio);
-        }
-
-        // Update audio graph
-        function updateGraph(dataArray) {
-            const bars = audioGraph.children;
+            // Update frequency spectrum (20 bars)
+            const freqBars = document.querySelectorAll('.freq-bar');
+            for (let i = 0; i < freqBars.length; i++) {
+                const index = Math.floor(i * (dataArray.length / freqBars.length));
+                const height = (dataArray[index] / 2.55) * 0.8; // Scale to 0-80%
+                freqBars[i].style.height = height + '%';
+            }
+            
+            // Update mini graph (10 bars)
+            const bars = document.querySelectorAll('.bar');
             for (let i = 0; i < bars.length; i++) {
                 const index = Math.floor(i * (dataArray.length / bars.length));
-                const height = dataArray[index] || 0;
-                bars[i].style.height = (height / 2.55) + '%';
+                const height = dataArray[index] / 2.55;
+                bars[i].style.height = height + '%';
             }
+            
+            animationFrame = requestAnimationFrame(analyzeAudio);
         }
 
         // Compare pronunciation
@@ -1419,8 +1567,6 @@
                 speak(`Let's practice these words: ${problematicWordsList.join(', ')}`);
             } else {
                 addAIMessage("Good job! You can repeat or go to next sentence.");
-                // Enable next sentence button after good practice
-                nextSentenceBtn.disabled = false;
             }
         }
 
@@ -1502,10 +1648,6 @@
             }
             
             currentSentenceIndex++;
-            
-            // Enable repeat button, disable next button until practice
-            repeatBtn.disabled = false;
-            nextSentenceBtn.disabled = true;
         }
 
         // Speak text with selected voice and speed
@@ -1594,6 +1736,13 @@
             // Reset buttons
             repeatBtn.disabled = true;
             nextSentenceBtn.disabled = true;
+            
+            // Reset graphs
+            resetGraphs();
+            
+            // Reset status
+            waveformStatus.textContent = 'Waiting for audio...';
+            spectrumStatus.textContent = '-';
         }
 
         // Check for Web Speech API support
@@ -1601,7 +1750,7 @@
             alert('Your browser does not support speech recognition. Please use Chrome for best experience.');
         }
 
-        console.log('Application loaded successfully with repeat and next buttons');
+        console.log('Application loaded successfully with waveform graphs');
     </script>
 </body>
 </html>
