@@ -289,6 +289,7 @@
         .voice-controls {
             display: flex;
             gap: 12px;
+            margin-bottom: 12px;
         }
 
         .voice-btn {
@@ -320,6 +321,40 @@
         .voice-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.08), -6px -6px 12px rgba(255, 255, 255, 0.9);
+        }
+
+        /* Voice Selector */
+        .voice-selector {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.02), inset -3px -3px 8px rgba(255,255,255,0.8);
+        }
+
+        .voice-selector label {
+            display: block;
+            color: #4a5b6e;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .voice-selector select {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: #f0f3f8;
+            border-radius: 50px;
+            font-size: 14px;
+            color: #2d3e50;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.03), -5px -5px 10px rgba(255,255,255,0.8);
+            cursor: pointer;
+            outline: none;
+        }
+
+        .voice-selector select:hover {
+            box-shadow: 7px 7px 14px rgba(0,0,0,0.05), -7px -7px 14px rgba(255,255,255,0.9);
         }
 
         .patient-info {
@@ -542,6 +577,51 @@
             font-weight: 600;
         }
 
+        /* Voice Settings */
+        .voice-settings {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .voice-speed {
+            flex: 1;
+            padding: 10px;
+            background: #f0f3f8;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: inset 3px 3px 6px rgba(0,0,0,0.03), inset -3px -3px 6px rgba(255,255,255,0.8);
+        }
+
+        .voice-speed input {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, #5a7af0, #8aa4ff);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .voice-speed input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(90,122,240,0.3);
+            cursor: pointer;
+            border: 2px solid #5a7af0;
+        }
+
+        .voice-speed span {
+            color: #4a5b6e;
+            font-size: 12px;
+            min-width: 35px;
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .grid {
@@ -633,6 +713,23 @@
                     <button class="voice-btn" id="startSessionBtn">▶ Start Practice</button>
                     <button class="voice-btn" id="recordBtn" disabled>🎤 Record</button>
                     <button class="voice-btn" id="stopBtn" disabled>⏹ Stop</button>
+                </div>
+                
+                <!-- Voice Selector - New Feature -->
+                <div class="voice-selector">
+                    <label>🎵 AI Voice Selection</label>
+                    <select id="voiceSelect">
+                        <option value="">Loading voices...</option>
+                    </select>
+                    
+                    <div class="voice-settings">
+                        <div class="voice-speed">
+                            <span>🐢</span>
+                            <input type="range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1">
+                            <span>🐇</span>
+                        </div>
+                        <div style="text-align: center; font-size: 12px; color: #5a7af0;" id="speedValue">Speed: 1.0x</div>
+                    </div>
                 </div>
                 
                 <!-- Patient Info -->
@@ -830,6 +927,9 @@
         let synthesis = window.speechSynthesis;
         let sessionTimer = null;
         let seconds = 0;
+        let availableVoices = [];
+        let selectedVoice = null;
+        let voiceSpeed = 1.0;
 
         // DOM Elements
         const loginContainer = document.getElementById('loginContainer');
@@ -847,6 +947,9 @@
         const nextSentencePreview = document.getElementById('nextSentencePreview');
         const problematicWords = document.getElementById('problematicWords');
         const patientNameSpan = document.getElementById('patientName');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const voiceSpeedInput = document.getElementById('voiceSpeed');
+        const speedValue = document.getElementById('speedValue');
 
         // Audio visualization elements
         const rmsValue = document.getElementById('rmsValue');
@@ -855,7 +958,58 @@
         const accuracyValue = document.getElementById('accuracyValue');
         const audioGraph = document.getElementById('audioGraph');
 
-        // Login handler - FIXED
+        // Load available voices
+        function loadVoices() {
+            availableVoices = synthesis.getVoices();
+            
+            // Clear existing options
+            voiceSelect.innerHTML = '';
+            
+            // Filter for English voices
+            const englishVoices = availableVoices.filter(voice => voice.lang.includes('en'));
+            
+            if (englishVoices.length > 0) {
+                englishVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voice.name;
+                    option.textContent = `${voice.name} (${voice.lang}) ${voice.localService ? '📍' : '☁️'}`;
+                    voiceSelect.appendChild(option);
+                });
+                
+                // Select first voice as default
+                selectedVoice = englishVoices[0];
+                voiceSelect.value = selectedVoice.name;
+            } else {
+                voiceSelect.innerHTML = '<option value="">No English voices available</option>';
+            }
+        }
+
+        // Voice selection change
+        voiceSelect.addEventListener('change', function() {
+            const selectedName = this.value;
+            selectedVoice = availableVoices.find(voice => voice.name === selectedName);
+            console.log('Voice changed to:', selectedVoice?.name);
+        });
+
+        // Voice speed change
+        voiceSpeedInput.addEventListener('input', function() {
+            voiceSpeed = parseFloat(this.value);
+            speedValue.textContent = `Speed: ${voiceSpeed.toFixed(1)}x`;
+        });
+
+        // Load voices when they become available
+        if (synthesis.onvoiceschanged !== undefined) {
+            synthesis.onvoiceschanged = loadVoices;
+        }
+        
+        // Initial load attempt
+        setTimeout(() => {
+            if (availableVoices.length === 0) {
+                loadVoices();
+            }
+        }, 500);
+
+        // Login handler
         loginButton.addEventListener('click', function() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -1281,16 +1435,28 @@
             nextSentenceBtn.disabled = true;
         }
 
-        // Speak text
+        // Speak text with selected voice and speed
         function speak(text) {
             if (synthesis.speaking) {
                 synthesis.cancel();
             }
             
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
+            
+            // Use selected voice if available
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                // Fallback to first available English voice
+                const englishVoice = synthesis.getVoices().find(voice => voice.lang.includes('en'));
+                if (englishVoice) {
+                    utterance.voice = englishVoice;
+                }
+            }
+            
+            utterance.rate = voiceSpeed;
             utterance.pitch = 1;
-            utterance.voice = synthesis.getVoices().find(voice => voice.lang === 'en-US');
+            
             synthesis.speak(utterance);
         }
 
@@ -1356,7 +1522,7 @@
             alert('Your browser does not support speech recognition. Please use Chrome for best experience.');
         }
 
-        console.log('Application loaded successfully');
+        console.log('Application loaded successfully with voice selection');
     </script>
 </body>
 </html>
