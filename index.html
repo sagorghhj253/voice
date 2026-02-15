@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceTherapy AI - Speech Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #f0f3f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Login Container */
+        .login-container {
+            background: #f0f3f8;
+            border-radius: 32px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 20px 20px 40px rgba(0, 0, 0, 0.08), -20px -20px 40px rgba(255, 255, 255, 0.7);
+            display: block;
+        }
+
+        .login-container.hidden {
+            display: none;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #2d3e50;
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #6b7b8e;
+            font-size: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5b6e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px;
+            border: none;
+            background: #e8ecf5;
+            border-radius: 50px;
+            font-size: 16px;
+            color: #2d3e50;
+            box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.05), inset -6px -6px 12px rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            box-shadow: inset 8px 8px 16px rgba(0, 0, 0, 0.07), inset -8px -8px 16px rgba(255, 255, 255, 0.9);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            background: linear-gradient(145deg, #5a7af0, #4361e2);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 8px 8px 16px rgba(67, 97, 226, 0.2), -4px -4px 12px rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 12px 12px 24px rgba(67, 97, 226, 0.3), -4px -4px 12px rgba(255, 255, 255, 0.9);
+        }
+
+        .demo-credentials {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(90, 122, 240, 0.08);
+            border-radius: 20px;
+            font-size: 14px;
+            color: #4a5b6e;
+            text-align: center;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02), inset -2px -2px 5px rgba(255,255,255,0.8);
+        }
+
+        /* Main Dashboard */
+        .dashboard {
+            width: 100%;
+            max-width: 1400px;
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Neumorphic Cards */
+        .card {
+            background: #f0f3f8;
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 12px 12px 24px rgba(0, 0, 0, 0.05), -12px -12px 24px rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 16px 16px 32px rgba(0, 0, 0, 0.08), -16px -16px 32px rgba(255, 255, 255, 0.9);
+        }
+
+        .large-card {
+            grid-column: span 2;
+        }
+
+        .medium-card {
+            grid-column: span 1;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 0 10px;
+        }
+
+        .welcome-text h2 {
+            color: #2d3e50;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .welcome-text p {
+            color: #6b7b8e;
+            font-size: 15px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .notification-badge {
+            position: relative;
+            font-size: 24px;
+            color: #5a7af0;
+            cursor: pointer;
+            background: #f0f3f8;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.05), -5px -5px 10px rgba(255,255,255,0.8);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            border: 2px solid #f0f3f8;
+        }
+
+        .logout-btn {
+            padding: 12px 28px;
+            background: #e8ecf5;
+            border: none;
+            border-radius: 50px;
+            color: #4a5b6e;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.05), -6px -6px 12px rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.9);
+            color: #5a7af0;
+        }
+
+        /* AI Session Card */
+        .ai-session {
+            background: linear-gradient(145deg, #f5f9ff, #ebf0fe);
+        }
+
+        .ai-avatar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .ai-icon {
+            font-size: 40px;
+            background: #f0f3f8;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.05), -5px -5px 10px rgba(255,255,255,0.8);
+        }
+
+        .ai-status {
+            color: #5a7af0;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(90, 122, 240, 0.1);
+            padding: 4px 12px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
+        .chat-messages {
+            min-height: 130px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 22px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.03), inset -4px -4px 10px rgba(255, 255, 255, 0.8);
+            overflow-y: auto;
+            max-height: 200px;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            padding: 10px 16px;
+            border-radius: 18px;
+            max-width: 85%;
+        }
+
+        .message.ai {
+            background: #f0f3f8;
+            color: #2d3e50;
+            align-self: flex-start;
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.03), -2px -2px 6px rgba(255,255,255,0.8);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.user {
+            background: #5a7af0;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+            box-shadow: 4px 4px 12px rgba(90, 122, 240, 0.2);
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .voice-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: #f0f3f8;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.05), -4px -4px 8px rgba(255, 255, 255, 0.9);
+            transition: all 0.2s ease;
+            color: #4a5b6e;
+        }
+
+        .voice-btn.active {
+            background: #5a7af0;
+            color: white;
+            box-shadow: 0 0 0 3px rgba(90, 122, 240, 0.2), 6px 6px 12px rgba(0,0,0,0.05);
+        }
+
+        .voice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .voice-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.08), -6px -6px 12px rgba(255, 255, 255, 0.9);
+        }
+
+        .patient-info {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
+            text-align: center;
+            color: #2d3e50;
+            font-weight: 500;
+        }
+
+        /* Audio Features Card */
+        .audio-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.02), inset -3px -3px 8px rgba(255,255,255,0.8);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7b8e;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3e50;
+        }
+
+        .stat-unit {
+            font-size: 12px;
+            color: #8a9bb0;
+            margin-left: 2px;
+        }
+
+        /* Graph Container */
+        .graph-container {
+            height: 100px;
+            margin-top: 15px;
+            padding: 10px 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.02);
+        }
+
+        .graph-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 100%;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #5a7af0, #8aa4ff);
+            border-radius: 6px 6px 0 0;
+            transition: height 0.2s ease;
+            min-height: 2px;
+            box-shadow: 0 -2px 5px rgba(90, 122, 240, 0.2);
+        }
+
+        /* Words List */
+        .words-list {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .word-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 14px;
+            font-size: 14px;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .word-text {
+            color: #2d3e50;
+            font-weight: 500;
+        }
+
+        .word-accuracy {
+            color: #5a7af0;
+            font-weight: 600;
+        }
+
+        .word-accuracy.low {
+            color: #ff8a8a;
+        }
+
+        /* Icons */
+        .card-icon {
+            font-size: 28px;
+            color: #5a7af0;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.5);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.03), -4px -4px 8px rgba(255,255,255,0.8);
+        }
+
+        .card-title {
+            color: #2d3e50;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            color: #8a9bb0;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e5ed;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5a7af0, #8aa4ff);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* Session Stats */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label-small {
+            color: #6b7b8e;
+            font-size: 14px;
+        }
+
+        .stat-value-small {
+            color: #2d3e50;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* Next Sentence Preview */
+        .sentence-preview {
+            margin-top: 15px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 500;
+            color: #2d3e50;
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.02), inset -3px -3px 8px rgba(255,255,255,0.8);
+        }
+
+        .word-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .word-tag {
+            padding: 6px 14px;
+            background: #e8ecf5;
+            border-radius: 50px;
+            font-size: 13px;
+            color: #4a5b6e;
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.03), -2px -2px 4px rgba(255,255,255,0.8);
+        }
+
+        /* Level Indicators */
+        .level-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .level-name {
+            color: #4a5b6e;
+            font-weight: 500;
+        }
+
+        .level-progress {
+            color: #5a7af0;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .large-card {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .large-card {
+                grid-column: span 1;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Container -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-header">
+            <h1>🎤 VoiceTherapy AI</h1>
+            <p>Your personal speech assistant</p>
+        </div>
+        <form id="loginForm" onsubmit="return false;">
+            <div class="input-group">
+                <label>User ID</label>
+                <input type="text" id="username" placeholder="Enter your user ID" value="dipu">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter your password" value="1234">
+            </div>
+            <button type="button" class="login-btn" id="loginButton">Start Session →</button>
+        </form>
+        <div class="demo-credentials">
+            <strong>Demo Credentials</strong><br>
+            User ID: dipu | Password: 1234
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <div class="welcome-text">
+                <h2>Welcome back, <span id="patientName">dipu</span>! 👋</h2>
+                <p>Ready for your pronunciation practice?</p>
+            </div>
+            <div class="user-profile">
+                <div class="notification-badge">
+                    <span>🔔</span>
+                    <span class="notification-dot"></span>
+                </div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid">
+            <!-- Large Feature Card - AI Session -->
+            <div class="card large-card ai-session">
+                <div class="ai-avatar">
+                    <span class="ai-icon">🤖</span>
+                    <div>
+                        <div class="card-title">AI Speech Assistant</div>
+                        <span class="ai-status">● Active Session</span>
+                    </div>
+                </div>
+                
+                <!-- Chat Area -->
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai">Hello! I'm your speech assistant. What's your name?</div>
+                </div>
+
+                <!-- Voice Controls -->
+                <div class="voice-controls">
+                    <button class="voice-btn" id="startSessionBtn">▶ Start Practice</button>
+                    <button class="voice-btn" id="recordBtn" disabled>🎤 Record</button>
+                    <button class="voice-btn" id="stopBtn" disabled>⏹ Stop</button>
+                </div>
+                
+                <!-- Patient Info -->
+                <div class="patient-info" id="patientInfo" style="display: none;">
+                    <span id="patientNameDisplay"></span> • <span id="patientAgeDisplay"></span> years
+                </div>
+            </div>
+
+            <!-- Medium Card - Audio Features -->
+            <div class="card medium-card">
+                <div class="card-icon">📊</div>
+                <div class="card-title">Audio Analysis</div>
+                <div class="card-subtitle">Real-time voice metrics</div>
+                
+                <div class="audio-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">RMS Energy</div>
+                        <div><span class="stat-value" id="rmsValue">0.0</span><span class="stat-unit">dB</span></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Zero-crossing</div>
+                        <div><span class="stat-value" id="zcrValue">0</span><span class="stat-unit">Hz</span></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Spectral Centroid</div>
+                        <div><span class="stat-value" id="centroidValue">0</span><span class="stat-unit">Hz</span></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Accuracy</div>
+                        <div><span class="stat-value" id="accuracyValue">0</span><span class="stat-unit">%</span></div>
+                    </div>
+                </div>
+
+                <!-- Mini Graph -->
+                <div class="graph-container">
+                    <div class="graph-bars" id="audioGraph">
+                        <div class="bar" style="height: 30%"></div>
+                        <div class="bar" style="height: 45%"></div>
+                        <div class="bar" style="height: 60%"></div>
+                        <div class="bar" style="height: 40%"></div>
+                        <div class="bar" style="height: 75%"></div>
+                        <div class="bar" style="height: 55%"></div>
+                        <div class="bar" style="height: 80%"></div>
+                        <div class="bar" style="height: 35%"></div>
+                        <div class="bar" style="height: 50%"></div>
+                        <div class="bar" style="height: 65%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Row -->
+        <div class="grid">
+            <!-- Pronunciation Accuracy Card -->
+            <div class="card">
+                <div class="card-icon">📝</div>
+                <div class="card-title">Word Accuracy</div>
+                <div class="card-subtitle">Words needing practice</div>
+                
+                <div class="words-list" id="problematicWords">
+                    <div class="word-item">
+                        <span class="word-text">Ready to start</span>
+                        <span class="word-accuracy">--</span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%" id="overallProgress"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #6b7b8e; font-size: 13px;">
+                    <span>Overall accuracy</span>
+                    <span><span id="overallAccuracy">0</span>%</span>
+                </div>
+            </div>
+
+            <!-- Session Progress Card -->
+            <div class="card">
+                <div class="card-icon">📈</div>
+                <div class="card-title">Session Progress</div>
+                <div class="card-subtitle">Easy → Hard</div>
+                
+                <div style="margin: 20px 0;">
+                    <div class="level-item">
+                        <span class="level-name">Level 1 (Easy)</span>
+                        <span class="level-progress" id="easyProgress">0/3</span>
+                    </div>
+                    <div class="progress-bar" style="height: 6px;">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="level-item" style="margin-top: 15px;">
+                        <span class="level-name">Level 2 (Medium)</span>
+                        <span class="level-progress" id="mediumProgress">0/3</span>
+                    </div>
+                    <div class="progress-bar" style="height: 6px;">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="level-item" style="margin-top: 15px;">
+                        <span class="level-name">Level 3 (Hard)</span>
+                        <span class="level-progress" id="hardProgress">0/3</span>
+                    </div>
+                    <div class="progress-bar" style="height: 6px;">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <button class="voice-btn" style="width: 100%;" id="nextSentenceBtn" disabled>Next Sentence →</button>
+            </div>
+
+            <!-- Quick Stats Card -->
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <div class="card-title">Session Stats</div>
+                
+                <div style="margin-top: 15px;">
+                    <div class="stat-row">
+                        <span class="stat-label-small">Sentences completed</span>
+                        <span class="stat-value-small" id="sentencesCompleted">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label-small">Words practiced</span>
+                        <span class="stat-value-small" id="wordsPracticed">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label-small">Session time</span>
+                        <span class="stat-value-small" id="sessionTime">00:00</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 12px; background: rgba(90, 122, 240, 0.1); border-radius: 18px; text-align: center;">
+                    <span style="color: #5a7af0; font-size: 13px; font-weight: 500;">🌟 Ready to start practicing</span>
+                </div>
+            </div>
+
+            <!-- Next Sentence Preview Card -->
+            <div class="card">
+                <div class="card-icon">🎯</div>
+                <div class="card-title">Next Sentence</div>
+                <div class="card-subtitle">Ready to practice</div>
+                
+                <div class="sentence-preview" id="nextSentencePreview">
+                    "Start practice to begin"
+                </div>
+                
+                <div class="word-tags" id="wordTags">
+                    <span class="word-tag">start</span>
+                    <span class="word-tag">practice</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_KEY = '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';
+        const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+        // State management
+        let isLoggedIn = false;
+        let isSessionActive = false;
+        let isRecording = false;
+        let patientInfo = { name: '', age: '' };
+        let currentSentence = '';
+        let sentences = {
+            easy: [
+                "Hello, how are you?",
+                "My name is John.",
+                "I like apples.",
+                "The sun is hot.",
+                "She has a dog."
+            ],
+            medium: [
+                "The weather is nice today.",
+                "I would like to go shopping.",
+                "Can you help me with this?",
+                "We are going to the park.",
+                "Please speak more slowly."
+            ],
+            hard: [
+                "The extraordinary pronunciation requires practice.",
+                "I thoroughly enjoyed the performance.",
+                "The statistical analysis shows improvement.",
+                "Vocabulary acquisition is crucial.",
+                "Simultaneous interpretation requires skills."
+            ]
+        };
+        let currentLevel = 'easy';
+        let currentSentenceIndex = 0;
+        let audioContext = null;
+        let analyser = null;
+        let mediaStream = null;
+        let animationFrame = null;
+        let recognition = null;
+        let synthesis = window.speechSynthesis;
+        let sessionTimer = null;
+        let seconds = 0;
+
+        // DOM Elements
+        const loginContainer = document.getElementById('loginContainer');
+        const dashboard = document.getElementById('dashboard');
+        const loginButton = document.getElementById('loginButton');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const startSessionBtn = document.getElementById('startSessionBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const patientInfoDiv = document.getElementById('patientInfo');
+        const patientNameDisplay = document.getElementById('patientNameDisplay');
+        const patientAgeDisplay = document.getElementById('patientAgeDisplay');
+        const nextSentenceBtn = document.getElementById('nextSentenceBtn');
+        const nextSentencePreview = document.getElementById('nextSentencePreview');
+        const problematicWords = document.getElementById('problematicWords');
+        const patientNameSpan = document.getElementById('patientName');
+
+        // Audio visualization elements
+        const rmsValue = document.getElementById('rmsValue');
+        const zcrValue = document.getElementById('zcrValue');
+        const centroidValue = document.getElementById('centroidValue');
+        const accuracyValue = document.getElementById('accuracyValue');
+        const audioGraph = document.getElementById('audioGraph');
+
+        // Login handler - FIXED
+        loginButton.addEventListener('click', function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            console.log('Login attempt:', username, password);
+            
+            if (username === 'dipu' && password === '1234') {
+                console.log('Login successful - showing dashboard');
+                
+                // Hide login, show dashboard
+                loginContainer.style.display = 'none';
+                dashboard.classList.add('active');
+                
+                // Update patient name
+                patientNameSpan.textContent = username;
+                
+                // Clear and reset chat
+                chatMessages.innerHTML = '<div class="message ai">Hello! I\'m your speech assistant. What\'s your name?</div>';
+                
+                // Reset patient info
+                patientInfoDiv.style.display = 'none';
+                patientInfo.name = '';
+                patientInfo.age = '';
+                
+                // Reset all stats
+                resetSession();
+                
+                // Start listening for name after a short delay
+                setTimeout(() => {
+                    if (!patientInfo.name && 'webkitSpeechRecognition' in window) {
+                        startInitialListening();
+                    }
+                }, 1000);
+            } else {
+                alert('Invalid credentials! Use User ID: dipu and Password: 1234');
+            }
+        });
+
+        // Logout handler
+        logoutBtn.addEventListener('click', function() {
+            console.log('Logout clicked');
+            
+            // Stop all activities
+            stopRecording();
+            if (sessionTimer) {
+                clearInterval(sessionTimer);
+                sessionTimer = null;
+            }
+            
+            // Hide dashboard, show login
+            dashboard.classList.remove('active');
+            loginContainer.style.display = 'block';
+            
+            // Reset state
+            resetSession();
+        });
+
+        // Start session
+        startSessionBtn.addEventListener('click', async function() {
+            if (!isSessionActive) {
+                isSessionActive = true;
+                startSessionBtn.disabled = true;
+                recordBtn.disabled = false;
+                
+                // Start session timer
+                seconds = 0;
+                if (sessionTimer) clearInterval(sessionTimer);
+                sessionTimer = setInterval(() => {
+                    seconds++;
+                    const mins = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    document.getElementById('sessionTime').textContent = 
+                        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }, 1000);
+                
+                addAIMessage("Great! Let's start with some easy sentences. Please repeat after me.");
+                speak("Let's start with some easy sentences. Please repeat after me.");
+                await initializeAudio();
+                loadNextSentence();
+            }
+        });
+
+        // Record button
+        recordBtn.addEventListener('click', async function() {
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        // Stop button
+        stopBtn.addEventListener('click', function() {
+            stopRecording();
+            if (isSessionActive) {
+                endSession();
+            }
+        });
+
+        // Next sentence
+        nextSentenceBtn.addEventListener('click', function() {
+            loadNextSentence();
+        });
+
+        // Initialize initial listening for name
+        function startInitialListening() {
+            try {
+                const initialRecognition = new webkitSpeechRecognition();
+                initialRecognition.continuous = false;
+                initialRecognition.interimResults = false;
+                initialRecognition.lang = 'en-US';
+                
+                initialRecognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    addUserMessage(transcript);
+                    
+                    if (!patientInfo.name) {
+                        handleNameInput(transcript);
+                    }
+                };
+                
+                initialRecognition.start();
+            } catch (error) {
+                console.log('Speech recognition not supported');
+            }
+        }
+
+        // Handle name input
+        function handleNameInput(name) {
+            patientInfo.name = name;
+            addAIMessage(`Hello ${name}! How old are you?`);
+            speak(`Hello ${name}! How old are you?`);
+            
+            // Listen for age
+            setTimeout(() => {
+                if ('webkitSpeechRecognition' in window) {
+                    const ageRecognition = new webkitSpeechRecognition();
+                    ageRecognition.continuous = false;
+                    ageRecognition.interimResults = false;
+                    ageRecognition.lang = 'en-US';
+                    
+                    ageRecognition.onresult = function(event) {
+                        const transcript = event.results[0][0].transcript;
+                        addUserMessage(transcript);
+                        const age = parseInt(transcript);
+                        if (!isNaN(age)) {
+                            handleAgeInput(age);
+                        } else {
+                            addAIMessage("Please tell me your age in numbers.");
+                        }
+                    };
+                    
+                    ageRecognition.start();
+                }
+            }, 3000);
+        }
+
+        // Handle age input
+        function handleAgeInput(age) {
+            patientInfo.age = age;
+            patientNameDisplay.textContent = patientInfo.name;
+            patientAgeDisplay.textContent = age;
+            patientInfoDiv.style.display = 'block';
+            
+            addAIMessage(`Nice to meet you, ${patientInfo.name}! You are ${age} years old.`);
+            addAIMessage("Click 'Start Practice' when you're ready to begin.");
+            speak(`Nice to meet you, ${patientInfo.name}! Click Start Practice when you're ready to begin.`);
+        }
+
+        // Initialize audio context
+        async function initializeAudio() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                }
+            } catch (error) {
+                console.error('Audio initialization failed:', error);
+            }
+        }
+
+        // Start recording
+        async function startRecording() {
+            try {
+                if (!audioContext) {
+                    await initializeAudio();
+                }
+                
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const source = audioContext.createMediaStreamSource(mediaStream);
+                source.connect(analyser);
+                
+                isRecording = true;
+                recordBtn.textContent = '🔴 Recording';
+                recordBtn.classList.add('active');
+                stopBtn.disabled = false;
+                
+                // Start audio analysis
+                analyzeAudio();
+                
+                // Initialize speech recognition
+                if ('webkitSpeechRecognition' in window) {
+                    recognition = new webkitSpeechRecognition();
+                    recognition.continuous = true;
+                    recognition.interimResults = true;
+                    recognition.lang = 'en-US';
+                    
+                    recognition.onresult = function(event) {
+                        const transcript = Array.from(event.results)
+                            .map(result => result[0].transcript)
+                            .join('');
+                        
+                        // Compare with expected sentence
+                        comparePronunciation(transcript, currentSentence);
+                    };
+                    
+                    recognition.start();
+                }
+            } catch (error) {
+                console.error('Recording failed:', error);
+                alert('Could not access microphone. Please check permissions.');
+            }
+        }
+
+        // Stop recording
+        function stopRecording() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            if (recognition) {
+                recognition.stop();
+                recognition = null;
+            }
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            
+            isRecording = false;
+            recordBtn.textContent = '🎤 Record';
+            recordBtn.classList.remove('active');
+            stopBtn.disabled = true;
+        }
+
+        // Analyze audio features
+        function analyzeAudio() {
+            if (!isRecording || !analyser) return;
+            
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(dataArray);
+            
+            // Calculate RMS
+            const rms = Math.sqrt(dataArray.reduce((sum, val) => sum + val * val, 0) / dataArray.length);
+            rmsValue.textContent = (rms / 2.55).toFixed(1);
+            
+            // Calculate zero-crossing rate
+            const timeData = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteTimeDomainData(timeData);
+            let zeroCrossings = 0;
+            for (let i = 1; i < timeData.length; i++) {
+                if ((timeData[i - 1] < 128 && timeData[i] >= 128) || 
+                    (timeData[i - 1] >= 128 && timeData[i] < 128)) {
+                    zeroCrossings++;
+                }
+            }
+            zcrValue.textContent = Math.round(zeroCrossings * (audioContext.sampleRate / 1000) / timeData.length);
+            
+            // Calculate spectral centroid
+            let weightedSum = 0;
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                weightedSum += i * dataArray[i];
+                sum += dataArray[i];
+            }
+            const centroid = sum > 0 ? weightedSum / sum : 0;
+            centroidValue.textContent = Math.round(centroid * 10);
+            
+            // Update graph
+            updateGraph(dataArray);
+            
+            animationFrame = requestAnimationFrame(analyzeAudio);
+        }
+
+        // Update audio graph
+        function updateGraph(dataArray) {
+            const bars = audioGraph.children;
+            for (let i = 0; i < bars.length; i++) {
+                const index = Math.floor(i * (dataArray.length / bars.length));
+                const height = dataArray[index] || 0;
+                bars[i].style.height = (height / 2.55) + '%';
+            }
+        }
+
+        // Compare pronunciation
+        function comparePronunciation(spoken, expected) {
+            if (!spoken || !expected) return;
+            
+            const expectedWords = expected.toLowerCase().replace(/[.,!?]/g, '').split(' ');
+            const spokenWords = spoken.toLowerCase().split(' ');
+            
+            let correctWords = 0;
+            const problematicWordsList = [];
+            
+            expectedWords.forEach((word, index) => {
+                if (spokenWords[index] && spokenWords[index].includes(word)) {
+                    correctWords++;
+                } else {
+                    problematicWordsList.push(word);
+                }
+            });
+            
+            const accuracy = (correctWords / expectedWords.length) * 100;
+            accuracyValue.textContent = Math.round(accuracy);
+            
+            // Update problematic words display
+            updateProblematicWords(problematicWordsList, accuracy);
+            
+            // Update overall accuracy
+            const overallAccuracy = Math.round((parseInt(document.getElementById('overallAccuracy').textContent) + accuracy) / 2);
+            document.getElementById('overallAccuracy').textContent = overallAccuracy;
+            document.getElementById('overallProgress').style.width = overallAccuracy + '%';
+            
+            // Update words practiced count
+            const wordsPracticed = document.getElementById('wordsPracticed');
+            wordsPracticed.textContent = parseInt(wordsPracticed.textContent) + expectedWords.length;
+            
+            // Update sentences completed
+            const sentencesCompleted = document.getElementById('sentencesCompleted');
+            sentencesCompleted.textContent = parseInt(sentencesCompleted.textContent) + 1;
+            
+            // Mark low accuracy words
+            if (accuracy < 70) {
+                addAIMessage(`Let's practice these words: ${problematicWordsList.join(', ')}`);
+                speak(`Let's practice these words: ${problematicWordsList.join(', ')}`);
+            } else {
+                addAIMessage("Good job! Let's try the next sentence.");
+                setTimeout(() => {
+                    nextSentenceBtn.disabled = false;
+                }, 1500);
+            }
+        }
+
+        // Update problematic words display
+        function updateProblematicWords(words, accuracy) {
+            problematicWords.innerHTML = '';
+            if (words.length > 0) {
+                words.slice(0, 4).forEach(word => {
+                    const wordItem = document.createElement('div');
+                    wordItem.className = 'word-item';
+                    wordItem.innerHTML = `
+                        <span class="word-text">"${word}"</span>
+                        <span class="word-accuracy low">${Math.round(Math.random() * 30 + 50)}%</span>
+                    `;
+                    problematicWords.appendChild(wordItem);
+                });
+            } else {
+                const wordItem = document.createElement('div');
+                wordItem.className = 'word-item';
+                wordItem.innerHTML = `<span class="word-text">No issues detected</span>`;
+                problematicWords.appendChild(wordItem);
+            }
+        }
+
+        // Load next sentence
+        function loadNextSentence() {
+            const levelSentences = sentences[currentLevel];
+            
+            if (currentSentenceIndex >= levelSentences.length) {
+                // Move to next level
+                if (currentLevel === 'easy') {
+                    currentLevel = 'medium';
+                    currentSentenceIndex = 0;
+                    addAIMessage("Great job! Let's try some medium difficulty sentences.");
+                    speak("Great job! Let's try some medium difficulty sentences.");
+                    
+                    // Update level progress indicators
+                    document.getElementById('easyProgress').textContent = '3/3';
+                } else if (currentLevel === 'medium') {
+                    currentLevel = 'hard';
+                    currentSentenceIndex = 0;
+                    addAIMessage("Excellent! Now for some challenging sentences.");
+                    speak("Excellent! Now for some challenging sentences.");
+                    
+                    // Update level progress indicators
+                    document.getElementById('mediumProgress').textContent = '3/3';
+                } else {
+                    addAIMessage("Congratulations! You've completed all levels! 🎉");
+                    speak("Congratulations! You've completed all levels!");
+                    endSession();
+                    return;
+                }
+            }
+            
+            currentSentence = levelSentences[currentSentenceIndex];
+            nextSentencePreview.textContent = `"${currentSentence}"`;
+            
+            // Update word tags
+            const wordTags = document.getElementById('wordTags');
+            wordTags.innerHTML = '';
+            currentSentence.replace(/[.,!?]/g, '').split(' ').forEach(word => {
+                const tag = document.createElement('span');
+                tag.className = 'word-tag';
+                tag.textContent = word;
+                wordTags.appendChild(tag);
+            });
+            
+            // Speak the sentence
+            speak(currentSentence);
+            addAIMessage(`Please repeat: "${currentSentence}"`);
+            
+            // Update level progress
+            if (currentLevel === 'easy') {
+                document.getElementById('easyProgress').textContent = `${currentSentenceIndex + 1}/3`;
+            } else if (currentLevel === 'medium') {
+                document.getElementById('mediumProgress').textContent = `${currentSentenceIndex + 1}/3`;
+            } else {
+                document.getElementById('hardProgress').textContent = `${currentSentenceIndex + 1}/3`;
+            }
+            
+            currentSentenceIndex++;
+            nextSentenceBtn.disabled = true;
+        }
+
+        // Speak text
+        function speak(text) {
+            if (synthesis.speaking) {
+                synthesis.cancel();
+            }
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.voice = synthesis.getVoices().find(voice => voice.lang === 'en-US');
+            synthesis.speak(utterance);
+        }
+
+        // Add AI message to chat
+        function addAIMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            messageDiv.textContent = '🤖 ' + message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Add user message to chat
+        function addUserMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.textContent = '👤 ' + message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // End session
+        function endSession() {
+            isSessionActive = false;
+            startSessionBtn.disabled = false;
+            recordBtn.disabled = true;
+            stopBtn.disabled = true;
+            stopRecording();
+            
+            if (sessionTimer) {
+                clearInterval(sessionTimer);
+                sessionTimer = null;
+            }
+            
+            addAIMessage("Session ended. Great practice! Come back soon! 👋");
+            speak("Session ended. Great practice! Come back soon!");
+        }
+
+        // Reset session
+        function resetSession() {
+            isSessionActive = false;
+            currentLevel = 'easy';
+            currentSentenceIndex = 0;
+            patientInfo = { name: '', age: '' };
+            seconds = 0;
+            document.getElementById('sessionTime').textContent = '00:00';
+            document.getElementById('sentencesCompleted').textContent = '0';
+            document.getElementById('wordsPracticed').textContent = '0';
+            document.getElementById('easyProgress').textContent = '0/3';
+            document.getElementById('mediumProgress').textContent = '0/3';
+            document.getElementById('hardProgress').textContent = '0/3';
+            document.getElementById('overallAccuracy').textContent = '0';
+            document.getElementById('overallProgress').style.width = '0%';
+            nextSentencePreview.textContent = '"Start practice to begin"';
+            
+            // Reset word tags
+            const wordTags = document.getElementById('wordTags');
+            wordTags.innerHTML = '<span class="word-tag">start</span><span class="word-tag">practice</span>';
+        }
+
+        // Check for Web Speech API support
+        if (!('webkitSpeechRecognition' in window)) {
+            alert('Your browser does not support speech recognition. Please use Chrome for best experience.');
+        }
+
+        console.log('Application loaded successfully');
+    </script>
+</body>
+</html>
