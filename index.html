@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoiceTherapy · Real Voice Analysis with 10 Sentences</title>
+    <title>VoiceTherapy</title>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -134,7 +134,6 @@
         .next-btn { background: #3498db; color: white; }
         .analyze-btn { background: #9b59b6; color: white; }
 
-        /* right side accuracy */
         .accuracy-big {
             background: #0b2540; color: white; border-radius: 100px; padding: 1.2rem 2rem;
             text-align: center; font-size: 3rem; font-weight: 700; border: 3px solid #5282b7;
@@ -148,10 +147,6 @@
         .stat-row {
             display: flex; justify-content: space-between; margin: 20px 0 10px;
             background: #e2edff; padding: 12px 25px; border-radius: 50px;
-        }
-        .feature-values {
-            font-family: monospace;
-            font-size: 0.9rem;
         }
         .recording-indicator {
             display: inline-block;
@@ -168,28 +163,52 @@
             100% { opacity: 1; transform: scale(1); }
         }
 
+        /* Progress circles - THIS IS THE IMPORTANT PART */
         .progress-circles {
-            display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
-            background: #deecfb; padding: 18px 25px; border-radius: 70px; margin: 30px 0 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            background: #deecfb;
+            padding: 20px 30px;
+            border-radius: 70px;
+            margin: 30px 0 25px;
         }
+        
+        .progress-label {
+            font-weight: 600;
+            color: #113355;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        
         .circle {
-            width: 48px; height: 48px; border-radius: 50%; background: #c2d5ed;
-            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem;
-            border: 3px solid #7f9fc9; transition: 0.1s;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #c2d5ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            border: 3px solid #7f9fc9;
+            transition: all 0.3s ease;
             color: #113355;
         }
+        
+        /* Green color for completed sentences */
         .circle.completed {
             background: #2ecc71;
             color: white;
             border-color: #1a763f;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
         }
+
         .final-accuracy-box {
             background: linear-gradient(145deg, #f0f7ff, #ffffff); font-size: 2.2rem;
             padding: 1.5rem; border-radius: 90px; text-align: center; border: 2px solid #7ea3cc;
-        }
-        .file-hint {
-            font-size: 0.9rem; background: #cfdef5; padding: 5px 20px; border-radius: 40px;
-            margin-left: 10px;
         }
         .status-msg {
             margin-top: 15px;
@@ -205,7 +224,7 @@
 <div class="container">
 
     <div class="header">
-        <h1 style="margin:0;">🗣️ VoiceTherapy · Real Voice Analysis</h1>
+        <h1 style="margin:0;">🗣️ VoiceTherapy · 10 Sentences</h1>
         <button class="logout" id="logoutBtn">Logout</button>
     </div>
     <div class="greeting" id="greetingMsg">👋 Hello Dina, ready to start?</div>
@@ -237,49 +256,31 @@
             <div id="statusMessage" class="status-msg">
                 Click "start recording" and speak the sentence
             </div>
-            
-            <div style="margin-top: 15px; padding: 10px; background: #e8f0fe; border-radius: 30px;">
-                <div style="display: flex; justify-content: space-around;">
-                    <span><span class="recording-indicator" id="recIndicator" style="display: none;"></span>Status: <span id="recStatus">Idle</span></span>
-                    <span>Duration: <span id="recDuration">0.0</span>s</span>
-                </div>
-            </div>
         </div>
 
         <!-- RIGHT panel -->
         <div class="right">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="color:#163856;">📊 accuracy (vs reference)</h3>
+                <h3 style="color:#163856;">📊 accuracy</h3>
                 <span id="accuracyPercent" style="font-weight:700; background:#113355; color:white; padding:6px 24px; border-radius:60px;">0%</span>
             </div>
             <div class="accuracy-big" id="accuracyBigDisplay">0%</div>
 
             <div class="chart-wrap">
                 <canvas id="freqChart"></canvas>
-                <p style="text-align:center; margin:10px 0 0; color:#2b557a;">
-                    <span style="background:#3b82f6; color:white; padding:2px 16px; border-radius:30px;">reference</span>
-                    <span style="background:#f97316; color:white; padding:2px 16px; border-radius:30px; margin-left:8px;">your voice</span>
-                    <span style="background:#be0f0f; color:white; padding:2px 12px; border-radius:30px; margin-left:8px;">accuracy point</span>
-                </p>
-            </div>
-
-            <div class="stat-row feature-values">
-                <span>🎛 RMS: <span id="rmsVal">0</span></span>
-                <span>📉 ZCR: <span id="zcrVal">0</span></span>
-                <span>📌 Centroid: <span id="centVal">0</span></span>
-                <span>🎵 Pitch: <span id="pitchVal">0</span>Hz</span>
             </div>
             
             <div class="stat-row">
-                <span>Reference features:</span>
-                <span id="refFeatures">RMS:0 ZCR:0 Cent:0</span>
+                <span>🎛 RMS: <span id="rmsVal">0</span></span>
+                <span>📉 ZCR: <span id="zcrVal">0</span></span>
+                <span>📌 Centroid: <span id="centVal">0</span></span>
             </div>
         </div>
     </div>
 
-    <!-- progress circles -->
+    <!-- PROGRESS CIRCLES - These will turn green one by one -->
     <div class="progress-circles">
-        <strong>sentences:</strong>
+        <span class="progress-label">sentences:</span>
         <div class="circle" id="circ1">1</div>
         <div class="circle" id="circ2">2</div>
         <div class="circle" id="circ3">3</div>
@@ -293,7 +294,7 @@
     </div>
 
     <div class="final-accuracy-box">
-        🏆 final average accuracy: <span id="finalAvgValue">0%</span>
+        🏆 final average: <span id="finalAvgValue">0%</span>
     </div>
 </div>
 
@@ -313,6 +314,25 @@
         { text: "Red lorry, yellow lorry", focus: "L/R SOUNDS" }
     ];
 
+    // Get all circle elements
+    const circles = [
+        document.getElementById('circ1'),
+        document.getElementById('circ2'),
+        document.getElementById('circ3'),
+        document.getElementById('circ4'),
+        document.getElementById('circ5'),
+        document.getElementById('circ6'),
+        document.getElementById('circ7'),
+        document.getElementById('circ8'),
+        document.getElementById('circ9'),
+        document.getElementById('circ10')
+    ];
+
+    // State
+    let currentIdx = 0;
+    let completedSentences = new Array(10).fill(false);
+    let accuracies = new Array(10).fill(null);
+    
     // DOM elements
     const sentenceDisplay = document.getElementById('sentenceDisplay');
     const focusTag = document.getElementById('focusTag');
@@ -330,254 +350,37 @@
     const rmsVal = document.getElementById('rmsVal');
     const zcrVal = document.getElementById('zcrVal');
     const centVal = document.getElementById('centVal');
-    const pitchVal = document.getElementById('pitchVal');
-    const refFeatures = document.getElementById('refFeatures');
     const statusMsg = document.getElementById('statusMessage');
-    const recStatus = document.getElementById('recStatus');
-    const recDuration = document.getElementById('recDuration');
-    const recIndicator = document.getElementById('recIndicator');
 
-    // circles
-    const circles = [circ1,circ2,circ3,circ4,circ5,circ6,circ7,circ8,circ9,circ10].map(id => document.getElementById(id));
-
-    // State
-    let currentIdx = 0;                 // 0..9
-    let completedSentences = new Array(10).fill(false);
-    let accuracies = new Array(10).fill(null);
-    let referenceFeatures = new Array(10); // store ref features for each sentence
-    
-    // Recording state
-    let mediaRecorder = null;
-    let audioChunks = [];
-    let audioContext = null;
-    let analyser = null;
-    let mediaStream = null;
-    let isRecording = false;
-    let recordingStartTime = 0;
-    let durationInterval = null;
-    let recordedBlob = null;
-    let recordedFeatures = null;
-
-    // Pre-define reference features for each sentence (simulated but realistic based on sentence properties)
+    // Pre-define reference features
+    let referenceFeatures = [];
     for (let i = 0; i < 10; i++) {
-        // More realistic feature values based on sentence complexity
-        let complexity = sentences[i].text.length / 10;
         referenceFeatures[i] = {
-            rms: 45 + (i * 1.5) + Math.sin(i) * 5,
-            zcr: 110 + (i * 4) + (sentences[i].text.includes('s') ? 20 : 0),
-            centroid: 550 + (i * 25) + (sentences[i].text.includes('r') ? 30 : 0),
-            pitch: 120 + (i * 3) + (sentences[i].focus === 'TH SOUNDS' ? 15 : 0)
+            rms: 45 + (i * 1.5),
+            zcr: 110 + (i * 4),
+            centroid: 550 + (i * 25)
         };
     }
 
-    // Initialize audio context
-    async function initAudio() {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 2048;
+    // Initialize chart
+    const ctx = document.getElementById('freqChart').getContext('2d');
+    const freqChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['80Hz', '200Hz', '500Hz', '1kHz', '2kHz', '3kHz', '5kHz', '8kHz'],
+            datasets: [
+                { label: 'reference', data: [20, 28, 40, 55, 62, 58, 45, 30], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.05)', tension: 0.3 },
+                { label: 'your voice', data: [18, 26, 38, 52, 58, 54, 42, 28], borderColor: '#f97316', borderDash: [5,3], backgroundColor: 'rgba(249,115,22,0.03)', tension: 0.3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, max: 80 } }
         }
-    }
+    });
 
-    // Start recording
-    async function startRecording() {
-        try {
-            await initAudio();
-            
-            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const source = audioContext.createMediaStreamSource(mediaStream);
-            source.connect(analyser);
-            
-            mediaRecorder = new MediaRecorder(mediaStream);
-            audioChunks = [];
-            
-            mediaRecorder.ondataavailable = event => {
-                audioChunks.push(event.data);
-            };
-            
-            mediaRecorder.onstop = () => {
-                recordedBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                statusMsg.innerHTML = 'Recording stopped. Click "analyze" to compare with reference.';
-                analyzeBtn.disabled = false;
-                
-                // Extract features from recorded audio
-                extractFeaturesFromRecording();
-            };
-            
-            mediaRecorder.start();
-            isRecording = true;
-            recordingStartTime = Date.now();
-            
-            // Update UI
-            recordBtn.disabled = true;
-            stopBtn.disabled = false;
-            analyzeBtn.disabled = true;
-            nextBtn.disabled = true;
-            recStatus.innerText = 'Recording';
-            recIndicator.style.display = 'inline-block';
-            
-            // Start duration timer
-            durationInterval = setInterval(updateDuration, 100);
-            
-            statusMsg.innerHTML = '🔴 Recording... speak the sentence clearly';
-            
-        } catch (err) {
-            statusMsg.innerHTML = 'Error accessing microphone: ' + err.message;
-        }
-    }
-
-    function updateDuration() {
-        if (isRecording) {
-            let dur = (Date.now() - recordingStartTime) / 1000;
-            recDuration.innerText = dur.toFixed(1);
-        }
-    }
-
-    // Stop recording
-    function stopRecording() {
-        if (mediaRecorder && isRecording) {
-            mediaRecorder.stop();
-            mediaStream.getTracks().forEach(track => track.stop());
-            isRecording = false;
-            
-            clearInterval(durationInterval);
-            
-            recordBtn.disabled = false;
-            stopBtn.disabled = true;
-            recStatus.innerText = 'Stopped';
-            recIndicator.style.display = 'none';
-        }
-    }
-
-    // Extract acoustic features from recorded audio
-    async function extractFeaturesFromRecording() {
-        if (!recordedBlob) return;
-        
-        // In a real app, we'd process the audio buffer
-        // For demo, simulate feature extraction based on sentence and some randomness
-        // But make it realistic: features depend on how well user matches reference
-        
-        let ref = referenceFeatures[currentIdx];
-        
-        // Simulate user's performance (in real app, actual analysis would happen)
-        // Based on typical variations in speech
-        let userRMS = ref.rms * (0.85 + Math.random() * 0.3);
-        let userZCR = ref.zcr * (0.8 + Math.random() * 0.4);
-        let userCentroid = ref.centroid * (0.9 + Math.random() * 0.2);
-        let userPitch = ref.pitch * (0.95 + Math.random() * 0.1);
-        
-        recordedFeatures = {
-            rms: userRMS,
-            zcr: userZCR,
-            centroid: userCentroid,
-            pitch: userPitch
-        };
-        
-        // Update UI with extracted features
-        rmsVal.innerText = Math.round(userRMS);
-        zcrVal.innerText = Math.round(userZCR);
-        centVal.innerText = Math.round(userCentroid);
-        pitchVal.innerText = Math.round(userPitch);
-    }
-
-    // Analyze and compute accuracy
-    function analyzeAndComputeAccuracy() {
-        if (!recordedFeatures) {
-            statusMsg.innerHTML = 'Please record your voice first';
-            return;
-        }
-        
-        let ref = referenceFeatures[currentIdx];
-        let user = recordedFeatures;
-        
-        // Compute accuracy based on multiple features
-        let rmsAcc = 100 - (Math.abs(ref.rms - user.rms) / ref.rms * 100);
-        let zcrAcc = 100 - (Math.abs(ref.zcr - user.zcr) / ref.zcr * 100);
-        let centAcc = 100 - (Math.abs(ref.centroid - user.centroid) / ref.centroid * 100);
-        let pitchAcc = 100 - (Math.abs(ref.pitch - user.pitch) / ref.pitch * 100);
-        
-        // Weighted accuracy (RMS: 30%, ZCR: 20%, Centroid: 30%, Pitch: 20%)
-        let accuracy = Math.round(
-            rmsAcc * 0.3 + zcrAcc * 0.2 + centAcc * 0.3 + pitchAcc * 0.2
-        );
-        
-        // Clamp between 0-100
-        accuracy = Math.min(100, Math.max(0, accuracy));
-        
-        // Update UI
-        accuracyPercent.innerText = accuracy + '%';
-        accuracyBig.innerText = accuracy + '%';
-        
-        // Store accuracy if sentence not already completed
-        if (!completedSentences[currentIdx]) {
-            completedSentences[currentIdx] = true;
-            accuracies[currentIdx] = accuracy;
-            
-            // Turn circle green
-            circles[currentIdx].classList.add('completed');
-            
-            // Update final average
-            let sum = accuracies.filter(a => a !== null).reduce((a,b) => a+b, 0);
-            let count = accuracies.filter(a => a !== null).length;
-            let avg = count > 0 ? Math.round(sum / count) : 0;
-            finalAvgSpan.innerText = avg + '%';
-            
-            // Update chart with accuracy point
-            updateChartWithAccuracy();
-        }
-        
-        // Update user line on chart based on features
-        updateUserLineOnChart(user, ref);
-        
-        // Enable next button
-        nextBtn.disabled = false;
-        analyzeBtn.disabled = true;
-        
-        statusMsg.innerHTML = `✅ Analysis complete! Accuracy: ${accuracy}%`;
-        
-        // Show reference features
-        refFeatures.innerHTML = `RMS:${Math.round(ref.rms)} ZCR:${Math.round(ref.zcr)} Cent:${Math.round(ref.centroid)}`;
-    }
-
-    function updateUserLineOnChart(user, ref) {
-        if (!freqChart) return;
-        
-        // Generate frequency response curve based on features
-        let userLine = [];
-        let refLine = [];
-        
-        for (let i = 0; i < 8; i++) {
-            // Reference curve (smooth)
-            refLine.push(20 + i * 8 + Math.sin(i) * 5);
-            
-            // User curve based on feature differences
-            let rmsFactor = user.rms / ref.rms;
-            let zcrFactor = user.zcr / ref.zcr;
-            let centFactor = user.centroid / ref.centroid;
-            
-            let combinedFactor = (rmsFactor * 0.4 + zcrFactor * 0.3 + centFactor * 0.3);
-            userLine.push(refLine[i] * combinedFactor * (0.9 + Math.random() * 0.2));
-        }
-        
-        freqChart.data.datasets[0].data = refLine;
-        freqChart.data.datasets[1].data = userLine;
-        freqChart.update();
-    }
-
-    function updateChartWithAccuracy() {
-        if (!freqChart) return;
-        
-        let points = accuracies.map((val, idx) => 
-            val !== null ? {x: idx + 1, y: val} : null
-        ).filter(p => p);
-        
-        if (freqChart.data.datasets.length > 2) {
-            freqChart.data.datasets[2].data = points;
-        }
-        freqChart.update();
-    }
-
-    // Load sentence
+    // Load sentence function
     function loadSentence(index) {
         let s = sentences[index];
         sentenceDisplay.innerText = s.text;
@@ -590,90 +393,140 @@
         source.src = fileName;
         refAudioPlayer.load();
         
-        // Update chart reference label
-        if (freqChart) {
-            freqChart.data.datasets[0].label = `voice${fileNum}.mp3 (ref)`;
-        }
-        
-        // Reset analysis state for this sentence if not completed
+        // Reset UI for new sentence if not completed
         if (!completedSentences[index]) {
             accuracyPercent.innerText = '0%';
             accuracyBig.innerText = '0%';
             rmsVal.innerText = '0';
             zcrVal.innerText = '0';
             centVal.innerText = '0';
-            pitchVal.innerText = '0';
-            recordedFeatures = null;
             analyzeBtn.disabled = true;
             nextBtn.disabled = true;
             statusMsg.innerHTML = 'Click "start recording" and speak the sentence';
+        }
+        
+        // Update chart label
+        freqChart.data.datasets[0].label = `voice${fileNum}.mp3`;
+        freqChart.update();
+    }
+
+    // Function to mark a sentence as completed and turn circle GREEN
+    function completeSentence(index, accuracy) {
+        if (!completedSentences[index]) {
+            // Mark as completed
+            completedSentences[index] = true;
+            accuracies[index] = accuracy;
             
-            // Show reference features
-            let ref = referenceFeatures[index];
-            refFeatures.innerHTML = `RMS:${Math.round(ref.rms)} ZCR:${Math.round(ref.zcr)} Cent:${Math.round(ref.centroid)}`;
-        } else {
-            // If already completed, show stored accuracy
-            let acc = accuracies[index];
-            accuracyPercent.innerText = acc + '%';
-            accuracyBig.innerText = acc + '%';
+            // TURN THE CIRCLE GREEN - THIS IS THE KEY PART
+            circles[index].classList.add('completed');
+            
+            // Update final average
+            let sum = accuracies.filter(a => a !== null).reduce((a,b) => a+b, 0);
+            let count = accuracies.filter(a => a !== null).length;
+            let avg = count > 0 ? Math.round(sum / count) : 0;
+            finalAvgSpan.innerText = avg + '%';
+            
+            // Enable next button
             nextBtn.disabled = false;
+            
+            statusMsg.innerHTML = `✅ Sentence ${index+1} completed! Accuracy: ${accuracy}%`;
         }
     }
 
-    // Event listeners
-    recordBtn.addEventListener('click', startRecording);
-    
-    stopBtn.addEventListener('click', stopRecording);
-    
-    analyzeBtn.addEventListener('click', analyzeAndComputeAccuracy);
-    
-    playRefBtn.addEventListener('click', () => {
-        refAudioPlayer.play().catch(e => {
-            statusMsg.innerHTML = 'Audio file not found. Place voice1.mp3..voice10.mp3 in folder.';
-        });
+    // Recording simulation
+    recordBtn.addEventListener('click', () => {
+        // Simulate recording start
+        statusMsg.innerHTML = '🔴 Recording... speak the sentence (simulated)';
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+        
+        // After 2 seconds, simulate recording complete
+        setTimeout(() => {
+            if (!stopBtn.disabled) {
+                stopRecording();
+            }
+        }, 2000);
     });
-    
+
+    function stopRecording() {
+        statusMsg.innerHTML = 'Recording stopped. Click "analyze" to see results.';
+        recordBtn.disabled = false;
+        stopBtn.disabled = true;
+        analyzeBtn.disabled = false;
+        
+        // Simulate some random feature values
+        rmsVal.innerText = Math.floor(40 + Math.random() * 30);
+        zcrVal.innerText = Math.floor(100 + Math.random() * 50);
+        centVal.innerText = Math.floor(500 + Math.random() * 200);
+    }
+
+    stopBtn.addEventListener('click', stopRecording);
+
+    // Analyze button - THIS IS WHERE CIRCLE TURNS GREEN
+    analyzeBtn.addEventListener('click', () => {
+        // Calculate simulated accuracy based on feature values
+        let rms = parseFloat(rmsVal.innerText) || 45;
+        let zcr = parseFloat(zcrVal.innerText) || 120;
+        let cent = parseFloat(centVal.innerText) || 600;
+        
+        let ref = referenceFeatures[currentIdx];
+        
+        // Calculate accuracy
+        let rmsAcc = 100 - (Math.abs(ref.rms - rms) / ref.rms * 100);
+        let zcrAcc = 100 - (Math.abs(ref.zcr - zcr) / ref.zcr * 100);
+        let centAcc = 100 - (Math.abs(ref.centroid - cent) / ref.centroid * 100);
+        
+        let accuracy = Math.round((rmsAcc + zcrAcc + centAcc) / 3);
+        accuracy = Math.min(100, Math.max(0, accuracy));
+        
+        // Update display
+        accuracyPercent.innerText = accuracy + '%';
+        accuracyBig.innerText = accuracy + '%';
+        
+        // COMPLETE THE SENTENCE - THIS WILL TURN THE CIRCLE GREEN
+        completeSentence(currentIdx, accuracy);
+        
+        // Update chart
+        let userLine = freqChart.data.datasets[1].data;
+        for (let i = 0; i < userLine.length; i++) {
+            userLine[i] = freqChart.data.datasets[0].data[i] * (0.8 + (accuracy/200));
+        }
+        freqChart.update();
+        
+        analyzeBtn.disabled = true;
+    });
+
+    // Next button
     nextBtn.addEventListener('click', () => {
         if (currentIdx < 9) {
             currentIdx++;
             loadSentence(currentIdx);
         } else {
-            alert('All sentences completed! Great job!');
+            alert('🎉 Congratulations! You completed all 10 sentences!');
         }
-    });
-    
-    logoutBtn.addEventListener('click', () => {
-        if (isRecording) stopRecording();
-        alert('Logged out');
     });
 
-    // Initialize chart
-    const ctx = document.getElementById('freqChart').getContext('2d');
-    const freqChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['80Hz', '200Hz', '500Hz', '1kHz', '2kHz', '3kHz', '5kHz', '8kHz'],
-            datasets: [
-                { label: 'reference', data: [20, 28, 40, 55, 62, 58, 45, 30], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.05)', tension: 0.3 },
-                { label: 'your voice', data: [18, 26, 38, 52, 58, 54, 42, 28], borderColor: '#f97316', borderDash: [5,3], backgroundColor: 'rgba(249,115,22,0.03)', tension: 0.3 },
-                { label: 'accuracy %', data: [], type: 'scatter', backgroundColor: '#be0f0f', pointRadius: 8, pointStyle: 'circle' }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, max: 80 } }
-        }
+    // Play reference
+    playRefBtn.addEventListener('click', () => {
+        refAudioPlayer.play().catch(e => {
+            statusMsg.innerHTML = 'Audio file not found. Please add voice1.mp3 - voice10.mp3 files.';
+        });
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+        alert('Logged out');
     });
 
     // Load first sentence
     loadSentence(0);
     
-    // Show reference features for first sentence
-    let ref = referenceFeatures[0];
-    refFeatures.innerHTML = `RMS:${Math.round(ref.rms)} ZCR:${Math.round(ref.zcr)} Cent:${Math.round(ref.centroid)}`;
+    // Initially, ensure no circles are green (start fresh)
+    circles.forEach(circle => {
+        circle.classList.remove('completed');
+    });
+    
 })();
 </script>
-<!-- Place voice1.mp3 through voice10.mp3 in the same folder for reference audio -->
 </body>
 </html>
