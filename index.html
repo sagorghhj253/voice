@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoiceTherapy · 10 sentences with real analysis</title>
+    <title>VoiceTherapy · Accuracy vs Sentences Graph</title>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -132,7 +132,6 @@
         .record-btn { background: #f39c12; color: white; }
         .stop-btn { background: #e67e22; color: white; }
         .next-btn { background: #3498db; color: white; }
-        /* analyze button removed - analysis happens automatically on stop */
 
         .accuracy-big {
             background: #0b2540; color: white; border-radius: 100px; padding: 1.2rem 2rem;
@@ -142,10 +141,10 @@
         .chart-wrap {
             background: white; border-radius: 40px; padding: 20px; border: 1px solid #bed6f0;
             margin-top: 15px;
-            min-height: 250px;
+            min-height: 280px;
             position: relative;
         }
-        canvas { max-height: 200px; width: 100% !important; }
+        canvas { max-height: 220px; width: 100% !important; }
         .stat-row {
             display: flex; justify-content: space-between; margin: 20px 0 10px;
             background: #e2edff; padding: 12px 25px; border-radius: 50px;
@@ -226,13 +225,19 @@
             border-radius: 30px;
             margin-top: 10px;
         }
+        .chart-title {
+            text-align: center;
+            font-weight: 600;
+            color: #113355;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
 
     <div class="header">
-        <h1 style="margin:0;">🗣️ VoiceTherapy · Real Voice Analysis</h1>
+        <h1 style="margin:0;">🗣️ VoiceTherapy · Accuracy Tracking</h1>
         <button class="logout" id="logoutBtn">Logout</button>
     </div>
     <div class="greeting" id="greetingMsg">👋 Hello Dina, ready to start?</div>
@@ -270,18 +275,19 @@
             </div>
         </div>
 
-        <!-- RIGHT panel -->
+        <!-- RIGHT panel with ACCURACY VS SENTENCE graph -->
         <div class="right">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="color:#163856;">📊 accuracy</h3>
+                <h3 style="color:#163856;">📊 current accuracy</h3>
                 <span id="accuracyPercent" style="font-weight:700; background:#113355; color:white; padding:6px 24px; border-radius:60px;">0%</span>
             </div>
             <div class="accuracy-big" id="accuracyBigDisplay">0%</div>
 
             <div class="chart-wrap">
-                <canvas id="freqChart"></canvas>
+                <div class="chart-title">Accuracy vs Sentence Number</div>
+                <canvas id="accuracyChart"></canvas>
                 <p style="text-align:center; margin:5px 0 0; color:#666; font-size:0.8rem;">
-                    ⚡ accuracy points appear after each sentence
+                    ⚡ each red dot shows your accuracy for that sentence
                 </p>
             </div>
             
@@ -377,15 +383,13 @@
     const refFeatures = document.getElementById('refFeatures');
     const userFeatures = document.getElementById('userFeatures');
 
-    // Pre-define reference features for each sentence (realistic values)
+    // Pre-define reference features for each sentence
     let referenceFeatures = [];
     for (let i = 0; i < 10; i++) {
-        // Different features for different sentence types
         let baseRMS = 40 + (i * 2);
         let baseZCR = 100 + (i * 5);
         let baseCent = 500 + (i * 30);
         
-        // Adjust based on sentence focus
         if (sentences[i].focus === 'S-BLENDS') baseZCR += 30;
         if (sentences[i].focus === 'TH SOUNDS') baseCent += 50;
         if (sentences[i].focus === 'VOWELS') baseRMS += 15;
@@ -397,56 +401,65 @@
         };
     }
 
-    // Initialize chart - EMPTY at start (no graph initially)
-    const ctx = document.getElementById('freqChart').getContext('2d');
-    const freqChart = new Chart(ctx, {
-        type: 'line',
+    // Initialize ACCURACY VS SENTENCE chart (not frequency)
+    const ctx = document.getElementById('accuracyChart').getContext('2d');
+    const accuracyChart = new Chart(ctx, {
+        type: 'scatter',
         data: {
-            labels: ['80Hz', '200Hz', '500Hz', '1kHz', '2kHz', '3kHz', '5kHz', '8kHz'],
-            datasets: [
-                { 
-                    label: 'reference', 
-                    data: [],  // empty initially
-                    borderColor: '#3b82f6', 
-                    backgroundColor: 'rgba(59,130,246,0.05)', 
-                    tension: 0.3,
-                    showLine: false,
-                    pointRadius: 0
-                },
-                { 
-                    label: 'your voice', 
-                    data: [],  // empty initially
-                    borderColor: '#f97316', 
-                    borderDash: [5,3], 
-                    backgroundColor: 'rgba(249,115,22,0.03)', 
-                    tension: 0.3,
-                    showLine: false,
-                    pointRadius: 0
-                },
-                { 
-                    label: 'accuracy point', 
-                    data: [], 
-                    type: 'scatter', 
-                    backgroundColor: '#be0f0f', 
-                    pointRadius: 8, 
-                    pointStyle: 'circle',
-                    showLine: false
-                }
-            ]
+            datasets: [{
+                label: 'Accuracy %',
+                data: [],  // empty initially
+                backgroundColor: '#be0f0f',
+                pointRadius: 8,
+                pointStyle: 'circle',
+                showLine: false
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { 
-                y: { 
-                    beginAtZero: true, 
-                    max: 100,
-                    title: { display: true, text: 'amplitude' }
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    min: 0.5,
+                    max: 10.5,
+                    title: {
+                        display: true,
+                        text: 'Sentence Number'
+                    },
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return '#' + value;
+                        }
+                    }
                 },
-                x: { title: { display: true, text: 'frequency' } }
+                y: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Accuracy (%)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
             },
             plugins: {
-                legend: { display: false }
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Sentence ${context.parsed.x}: ${context.parsed.y}%`;
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                }
             }
         }
     });
@@ -479,7 +492,6 @@
             mediaRecorder.start();
             isRecording = true;
             
-            // Update UI
             recordBtn.disabled = true;
             stopBtn.disabled = false;
             nextBtn.disabled = true;
@@ -490,25 +502,19 @@
         }
     }
 
-    // Extract features from audio data (real extraction)
+    // Extract features from audio data
     async function extractFeaturesFromAudio(audioBlob) {
-        // In a real app, we would process the audio buffer
-        // For demo, we'll extract from analyser data if available
-        
         if (!analyser) return null;
         
-        // Get frequency data
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(dataArray);
         
-        // Calculate RMS (energy)
         let sum = 0;
         for (let i = 0; i < dataArray.length; i++) {
             sum += dataArray[i] * dataArray[i];
         }
-        let rms = Math.sqrt(sum / dataArray.length) / 2.55; // scale to 0-100
+        let rms = Math.sqrt(sum / dataArray.length) / 2.55;
         
-        // Calculate Zero Crossing Rate (simulated from real data)
         const timeData = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteTimeDomainData(timeData);
         let zeroCrossings = 0;
@@ -518,9 +524,8 @@
                 zeroCrossings++;
             }
         }
-        let zcr = (zeroCrossings * 48000) / (timeData.length * 2); // approximate Hz
+        let zcr = (zeroCrossings * 48000) / (timeData.length * 2);
         
-        // Calculate spectral centroid
         let weightedSum = 0;
         let amplitudeSum = 0;
         for (let i = 0; i < dataArray.length; i++) {
@@ -536,7 +541,7 @@
         };
     }
 
-    // Stop recording and automatically analyze
+    // Stop recording and analyze
     async function stopRecording() {
         if (mediaRecorder && isRecording) {
             mediaRecorder.stop();
@@ -545,23 +550,19 @@
             
             statusMsg.innerHTML = '⏳ Processing your voice... analyzing features';
             
-            // Wait for final data
             await new Promise(resolve => {
                 mediaRecorder.onstop = async () => {
                     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                     
-                    // Extract features from the recording
                     recordedFeatures = await extractFeaturesFromAudio(audioBlob);
                     
                     if (recordedFeatures) {
-                        // Update UI with extracted features
                         rmsVal.innerText = Math.round(recordedFeatures.rms);
                         zcrVal.innerText = Math.round(recordedFeatures.zcr);
                         centVal.innerText = Math.round(recordedFeatures.centroid);
                         
                         userFeatures.innerHTML = `Your voice: RMS:${Math.round(recordedFeatures.rms)} ZCR:${Math.round(recordedFeatures.zcr)} Cent:${Math.round(recordedFeatures.centroid)}`;
                         
-                        // Now compare with reference and calculate accuracy
                         compareWithReference(recordedFeatures);
                     }
                     
@@ -578,82 +579,29 @@
     function compareWithReference(userFeat) {
         let ref = referenceFeatures[currentIdx];
         
-        // Update reference display
         refFeatures.innerHTML = `Reference: RMS:${Math.round(ref.rms)} ZCR:${Math.round(ref.zcr)} Cent:${Math.round(ref.centroid)}`;
         
-        // Calculate accuracy for each feature (how close to reference)
         let rmsAcc = 100 - (Math.abs(ref.rms - userFeat.rms) / ref.rms * 100);
         let zcrAcc = 100 - (Math.abs(ref.zcr - userFeat.zcr) / ref.zcr * 100);
         let centAcc = 100 - (Math.abs(ref.centroid - userFeat.centroid) / ref.centroid * 100);
         
-        // Weighted accuracy (RMS 40%, ZCR 30%, Centroid 30%)
         let accuracy = Math.round(
             Math.max(0, rmsAcc) * 0.4 + 
             Math.max(0, zcrAcc) * 0.3 + 
             Math.max(0, centAcc) * 0.3
         );
         
-        // Clamp between 0-100
         accuracy = Math.min(100, Math.max(0, accuracy));
         
-        // Update display
         accuracyPercent.innerText = accuracy + '%';
         accuracyBig.innerText = accuracy + '%';
         
-        // Complete the sentence (turn circle green)
         completeSentence(currentIdx, accuracy);
-        
-        // Add accuracy point to graph
-        addAccuracyPoint(currentIdx + 1, accuracy);
-        
-        // Show reference vs user curves on graph
-        showFeatureCurves(ref, userFeat);
         
         statusMsg.innerHTML = `✅ Analysis complete! Accuracy: ${accuracy}%`;
     }
 
-    // Add a single accuracy point to the graph
-    function addAccuracyPoint(sentenceNum, accuracy) {
-        // Get existing points
-        let points = accuracies.map((val, idx) => 
-            val !== null ? {x: idx + 1, y: val} : null
-        ).filter(p => p !== null);
-        
-        // Update chart dataset
-        if (freqChart.data.datasets[2]) {
-            freqChart.data.datasets[2].data = points;
-            freqChart.update();
-        }
-    }
-
-    // Show reference and user curves on graph
-    function showFeatureCurves(ref, user) {
-        // Generate curves based on features
-        let refCurve = [];
-        let userCurve = [];
-        
-        for (let i = 0; i < 8; i++) {
-            // Reference curve based on features
-            let refVal = (ref.rms / 100) * 40 + (ref.zcr / 500) * 30 + (ref.centroid / 2000) * 30;
-            refCurve.push(Math.min(80, 20 + i * 5 + refVal / 2));
-            
-            // User curve based on how close they are to reference
-            let similarity = 1 - (Math.abs(ref.rms - user.rms) / ref.rms);
-            let userVal = refVal * (0.7 + similarity * 0.6);
-            userCurve.push(Math.min(80, Math.max(10, userVal)));
-        }
-        
-        // Enable lines and show data
-        freqChart.data.datasets[0].data = refCurve;
-        freqChart.data.datasets[1].data = userCurve;
-        freqChart.data.datasets[0].showLine = true;
-        freqChart.data.datasets[1].showLine = true;
-        freqChart.data.datasets[0].pointRadius = 3;
-        freqChart.data.datasets[1].pointRadius = 3;
-        freqChart.update();
-    }
-
-    // Mark sentence as completed and turn circle green
+    // Mark sentence as completed, turn circle green, and ADD POINT TO GRAPH
     function completeSentence(index, accuracy) {
         if (!completedSentences[index]) {
             completedSentences[index] = true;
@@ -661,6 +609,20 @@
             
             // TURN THE CIRCLE GREEN
             circles[index].classList.add('completed');
+            
+            // ADD ACCURACY POINT TO GRAPH (sentence number vs accuracy)
+            let points = [];
+            for (let i = 0; i < 10; i++) {
+                if (accuracies[i] !== null) {
+                    points.push({
+                        x: i + 1,  // sentence number (1-based)
+                        y: accuracies[i]
+                    });
+                }
+            }
+            
+            accuracyChart.data.datasets[0].data = points;
+            accuracyChart.update();
             
             // Update final average
             let sum = accuracies.filter(a => a !== null).reduce((a,b) => a+b, 0);
@@ -686,7 +648,6 @@
         source.src = fileName;
         refAudioPlayer.load();
         
-        // Reset UI for new sentence
         if (!completedSentences[index]) {
             accuracyPercent.innerText = '0%';
             accuracyBig.innerText = '0%';
@@ -696,7 +657,6 @@
             nextBtn.disabled = true;
             statusMsg.innerHTML = 'Click "start recording" and speak the sentence';
             
-            // Show reference features for this sentence
             let ref = referenceFeatures[index];
             refFeatures.innerHTML = `Reference: RMS:${Math.round(ref.rms)} ZCR:${Math.round(ref.zcr)} Cent:${Math.round(ref.centroid)}`;
             userFeatures.innerHTML = `Your voice: RMS:-- ZCR:-- Cent:--`;
@@ -739,10 +699,8 @@
     });
     
     // Clear any existing graph data
-    freqChart.data.datasets[0].data = [];
-    freqChart.data.datasets[1].data = [];
-    freqChart.data.datasets[2].data = [];
-    freqChart.update();
+    accuracyChart.data.datasets[0].data = [];
+    accuracyChart.update();
     
 })();
 </script>
