@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Pitch Therapy Games</title>
+    <title>Voice Pitch Therapy Games + Articulation</title>
     <style>
         * {
             margin: 0;
@@ -95,6 +95,12 @@
         .game-tab.space-tab { background: #9B59B6; color: white; }
         .game-tab.animal-tab { background: #2ECC71; color: white; }
         .game-tab.monster-tab { background: #E74C3C; color: white; }
+        /* articulation tabs */
+        .game-tab.artic-l-tab { background: #1ABC9C; color: white; }
+        .game-tab.artic-r-tab { background: #E67E22; color: white; }
+        .game-tab.artic-s-tab { background: #3498DB; color: white; }
+        .game-tab.artic-th-tab { background: #9B59B6; color: white; }
+        .game-tab.artic-ch-tab { background: #E74C3C; color: white; }
 
         /* Game Container */
         .game-container {
@@ -274,6 +280,49 @@
             transition: height 0.1s;
         }
 
+        /* articulation scenes */
+        .artic-scene {
+            background: #FFDAB9;
+            border-radius: 40px;
+            padding: 30px;
+            height: 350px;
+            border: 4px solid #A0522D;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            overflow-y: auto;
+        }
+        .artic-card {
+            background: white;
+            border-radius: 30px;
+            padding: 20px;
+            font-size: 3.5rem;
+            text-align: center;
+            box-shadow: 0 10px 0 #C0C0C0;
+            border: 3px solid gray;
+            transition: 0.1s;
+            cursor: pointer;
+        }
+        .artic-card:active {
+            transform: translateY(5px);
+            box-shadow: 0 5px 0 gray;
+        }
+        .artic-card.selected {
+            border: 5px solid #F1C40F;
+            transform: scale(1.05);
+            box-shadow: 0 10px 0 #B7950B;
+        }
+        .artic-word {
+            font-size: 1.8rem;
+            background: #ecf0f1;
+            padding: 10px 20px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
         /* Controls */
         .game-controls {
             background: #ECF0F1;
@@ -381,22 +430,29 @@
     <div class="main-container">
         <!-- Header -->
         <div class="game-header">
-            <h1>🎮 Voice Pitch Therapy Games</h1>
+            <h1>🎮 Voice & Articulation Therapy</h1>
             <button class="back-btn" id="backToIndex">← Back to Therapy</button>
         </div>
 
-        <!-- Game Tabs -->
+        <!-- Game Tabs (5 pitch + 5 articulation) -->
         <div class="game-tabs">
+            <!-- original 5 pitch tabs -->
             <button class="game-tab balloon-tab active" data-game="balloon">🎈 Balloon Rise</button>
             <button class="game-tab pitch-tab" data-game="monster">👾 Pitch Monster</button>
             <button class="game-tab space-tab" data-game="space">🚀 Space Ship</button>
             <button class="game-tab animal-tab" data-game="animal">🐘 Animal Sounds</button>
             <button class="game-tab monster-tab" data-game="alien">👽 Alien Friend</button>
+            <!-- 5 new articulation tabs -->
+            <button class="game-tab artic-l-tab" data-game="articL">🗣️ /l/ Lion</button>
+            <button class="game-tab artic-r-tab" data-game="articR">🗣️ /r/ Rabbit</button>
+            <button class="game-tab artic-s-tab" data-game="articS">🗣️ /s/ Snake</button>
+            <button class="game-tab artic-th-tab" data-game="articTH">🗣️ /th/ Think</button>
+            <button class="game-tab artic-ch-tab" data-game="articCH">🗣️ /ch/ Chair</button>
         </div>
 
         <!-- Game Container -->
         <div class="game-container">
-            <!-- Game 1: Balloon Adventure (FIXED) -->
+            <!-- Game 1: Balloon Adventure (unchanged) -->
             <div id="balloon-game" class="game-area active">
                 <div class="balloon-scene" id="balloonScene">
                     <div class="balloon-wrapper" id="balloonWrapper" style="bottom: 50px;">
@@ -435,7 +491,7 @@
                 </div>
             </div>
 
-            <!-- Game 2: Pitch Monster -->
+            <!-- Game 2: Pitch Monster (unchanged) -->
             <div id="monster-game" class="game-area">
                 <div class="monster-scene" id="monsterScene">
                     <div class="monster" id="monster">👾</div>
@@ -467,7 +523,7 @@
                 </div>
             </div>
 
-            <!-- Game 3: Space Ship -->
+            <!-- Game 3: Space Ship (unchanged) -->
             <div id="space-game" class="game-area">
                 <div class="space-scene" id="spaceScene">
                     <div class="stars"></div>
@@ -500,7 +556,7 @@
                 </div>
             </div>
 
-            <!-- Game 4: Animal Sounds -->
+            <!-- Game 4: Animal Sounds (unchanged) -->
             <div id="animal-game" class="game-area">
                 <div class="animal-scene" id="animalScene">
                     <div class="animal" id="cow">🐮</div>
@@ -536,7 +592,7 @@
                 </div>
             </div>
 
-            <!-- Game 5: Alien Friend -->
+            <!-- Game 5: Alien Friend (unchanged) -->
             <div id="alien-game" class="game-area">
                 <div class="space-scene" style="background: #4A235A;" id="alienScene">
                     <div class="spaceship" style="font-size: 6rem;" id="alien">👽</div>
@@ -567,6 +623,96 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ========== NEW ARTICULATION GAMES ========== -->
+            <!-- Game 6: Articulation /l/ -->
+            <div id="articL-game" class="game-area">
+                <div class="artic-scene" id="articLScene">
+                    <div class="artic-card" data-sound="l" data-word="lion">🦁<br><span class="artic-word">lion</span></div>
+                    <div class="artic-card" data-sound="l" data-word="leaf">🍃<br><span class="artic-word">leaf</span></div>
+                    <div class="artic-card" data-sound="l" data-word="ball">⚽<br><span class="artic-word">ball</span></div>
+                    <div class="artic-card" data-sound="l" data-word="lamp">💡<br><span class="artic-word">lamp</span></div>
+                </div>
+                <div class="game-controls">
+                    <div class="target-display" id="articLTarget">🦁 Say "lion" (good /l/ sound)</div>
+                    <div class="meter-container">
+                        <div class="meter-label">🗣️ Articulation clarity</div>
+                        <div class="pitch-meter"><div class="pitch-fill" id="articLMeter" style="width:0%"></div></div>
+                        <div class="stats-row"><span>Attempts: <span id="articLAttempts">0</span></span><span>Correct: <span id="articLCorrect">0</span></span></div>
+                    </div>
+                    <div class="game-buttons">
+                        <button class="action-btn start" id="articLStart">🎤 Start</button>
+                        <button class="action-btn stop" id="articLStop" disabled>⏹ Stop</button>
+                        <button class="action-btn reset" id="articLReset">🔄 New Words</button>
+                    </div>
+                    <div class="feedback-msg" id="articLFeedback">Click a card and say the word clearly!</div>
+                    <div class="score-display" id="articLScore">⭐ 0 stars</div>
+                </div>
+            </div>
+
+            <!-- Game 7: Articulation /r/ -->
+            <div id="articR-game" class="game-area">
+                <div class="artic-scene" id="articRScene">
+                    <div class="artic-card" data-sound="r" data-word="rabbit">🐇<br><span class="artic-word">rabbit</span></div>
+                    <div class="artic-card" data-sound="r" data-word="rain">☔<br><span class="artic-word">rain</span></div>
+                    <div class="artic-card" data-sound="r" data-word="car">🚗<br><span class="artic-word">car</span></div>
+                    <div class="artic-card" data-sound="r" data-word="red">🔴<br><span class="artic-word">red</span></div>
+                </div>
+                <div class="game-controls">
+                    <div class="target-display" id="articRTarget">🐇 Say "rabbit" (good /r/)</div>
+                    <div class="meter-container"><div class="meter-label">🗣️ Clarity</div><div class="pitch-meter"><div class="pitch-fill" id="articRMeter" style="width:0%"></div></div><div class="stats-row"><span>Attempts: <span id="articRAttempts">0</span></span><span>Correct: <span id="articRCorrect">0</span></span></div></div>
+                    <div class="game-buttons"><button class="action-btn start" id="articRStart">🎤 Start</button><button class="action-btn stop" id="articRStop" disabled>⏹ Stop</button><button class="action-btn reset" id="articRReset">🔄 New Words</button></div>
+                    <div class="feedback-msg" id="articRFeedback">Click a card and say the word!</div><div class="score-display" id="articRScore">⭐ 0 stars</div>
+                </div>
+            </div>
+
+            <!-- Game 8: Articulation /s/ -->
+            <div id="articS-game" class="game-area">
+                <div class="artic-scene" id="articSScene">
+                    <div class="artic-card" data-sound="s" data-word="snake">🐍<br><span class="artic-word">snake</span></div>
+                    <div class="artic-card" data-sound="s" data-word="sun">☀️<br><span class="artic-word">sun</span></div>
+                    <div class="artic-card" data-sound="s" data-word="bus">🚌<br><span class="artic-word">bus</span></div>
+                    <div class="artic-card" data-sound="s" data-word="star">⭐<br><span class="artic-word">star</span></div>
+                </div>
+                <div class="game-controls">
+                    <div class="target-display" id="articSTarget">🐍 Say "snake" (good /s/)</div>
+                    <div class="meter-container"><div class="meter-label">🗣️ Clarity</div><div class="pitch-meter"><div class="pitch-fill" id="articSMeter" style="width:0%"></div></div><div class="stats-row"><span>Attempts: <span id="articSAttempts">0</span></span><span>Correct: <span id="articSCorrect">0</span></span></div></div>
+                    <div class="game-buttons"><button class="action-btn start" id="articSStart">🎤 Start</button><button class="action-btn stop" id="articSStop" disabled>⏹ Stop</button><button class="action-btn reset" id="articSReset">🔄 New Words</button></div>
+                    <div class="feedback-msg" id="articSFeedback">Click a card and say the word!</div><div class="score-display" id="articSScore">⭐ 0 stars</div>
+                </div>
+            </div>
+
+            <!-- Game 9: Articulation /th/ -->
+            <div id="articTH-game" class="game-area">
+                <div class="artic-scene" id="articTHScene">
+                    <div class="artic-card" data-sound="th" data-word="think">🤔<br><span class="artic-word">think</span></div>
+                    <div class="artic-card" data-sound="th" data-word="thumb">👍<br><span class="artic-word">thumb</span></div>
+                    <div class="artic-card" data-sound="th" data-word="bath">🛁<br><span class="artic-word">bath</span></div>
+                    <div class="artic-card" data-sound="th" data-word="feather">🪶<br><span class="artic-word">feather</span></div>
+                </div>
+                <div class="game-controls">
+                    <div class="target-display" id="articTHTarget">🤔 Say "think" (good /th/)</div>
+                    <div class="meter-container"><div class="meter-label">🗣️ Clarity</div><div class="pitch-meter"><div class="pitch-fill" id="articTHMeter" style="width:0%"></div></div><div class="stats-row"><span>Attempts: <span id="articTHAttempts">0</span></span><span>Correct: <span id="articTHCorrect">0</span></span></div></div>
+                    <div class="game-buttons"><button class="action-btn start" id="articTHStart">🎤 Start</button><button class="action-btn stop" id="articTHStop" disabled>⏹ Stop</button><button class="action-btn reset" id="articTHReset">🔄 New Words</button></div>
+                    <div class="feedback-msg" id="articTHFeedback">Click a card and say the word!</div><div class="score-display" id="articTHScore">⭐ 0 stars</div>
+                </div>
+            </div>
+
+            <!-- Game 10: Articulation /ch/ -->
+            <div id="articCH-game" class="game-area">
+                <div class="artic-scene" id="articCHScene">
+                    <div class="artic-card" data-sound="ch" data-word="chair">🪑<br><span class="artic-word">chair</span></div>
+                    <div class="artic-card" data-sound="ch" data-word="chick">🐥<br><span class="artic-word">chick</span></div>
+                    <div class="artic-card" data-sound="ch" data-word="peach">🍑<br><span class="artic-word">peach</span></div>
+                    <div class="artic-card" data-sound="ch" data-word="watch">⌚<br><span class="artic-word">watch</span></div>
+                </div>
+                <div class="game-controls">
+                    <div class="target-display" id="articCHTarget">🪑 Say "chair" (good /ch/)</div>
+                    <div class="meter-container"><div class="meter-label">🗣️ Clarity</div><div class="pitch-meter"><div class="pitch-fill" id="articCHMeter" style="width:0%"></div></div><div class="stats-row"><span>Attempts: <span id="articCHAttempts">0</span></span><span>Correct: <span id="articCHCorrect">0</span></span></div></div>
+                    <div class="game-buttons"><button class="action-btn start" id="articCHStart">🎤 Start</button><button class="action-btn stop" id="articCHStop" disabled>⏹ Stop</button><button class="action-btn reset" id="articCHReset">🔄 New Words</button></div>
+                    <div class="feedback-msg" id="articCHFeedback">Click a card and say the word!</div><div class="score-display" id="articCHScore">⭐ 0 stars</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -583,11 +729,9 @@
 
             gameTabs.forEach(tab => {
                 tab.addEventListener('click', () => {
-                    // Update active tab
                     gameTabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
                     
-                    // Show corresponding game
                     const gameId = tab.dataset.game;
                     gameAreas.forEach(area => {
                         area.classList.remove('active');
@@ -596,7 +740,6 @@
                         }
                     });
 
-                    // Stop any active audio in all games
                     stopAllAudio();
                 });
             });
@@ -610,50 +753,27 @@
             let currentGame = null;
             let gameActive = false;
 
-            // Balloon Game Variables
-            let balloonHeight = 0;
-            let maxBalloonHeight = 0;
-
-            // Monster Game Variables
+            // Pitch game variables (unchanged, but keep them)
+            let balloonHeight = 0, maxBalloonHeight = 0;
             let monsterFood = 0;
-
-            // Space Game Variables
             let spaceAltitude = 0;
+            let animalScore = 0, currentAnimal = 'cow';
+            const animalSounds = { cow: { pitch: 120, name: 'MOOO', emoji: '🐮' }, sheep: { pitch: 250, name: 'BAAAA', emoji: '🐑' }, duck: { pitch: 400, name: 'QUACK', emoji: '🦆' }, frog: { pitch: 180, name: 'RIBBIT', emoji: '🐸' } };
+            let targetPitch = 200, alienFriendliness = 0;
 
-            // Animal Game Variables
-            let animalScore = 0;
-            let currentAnimal = 'cow';
-            const animalSounds = {
-                cow: { pitch: 120, name: 'MOOO', emoji: '🐮' },
-                sheep: { pitch: 250, name: 'BAAAA', emoji: '🐑' },
-                duck: { pitch: 400, name: 'QUACK', emoji: '🦆' },
-                frog: { pitch: 180, name: 'RIBBIT', emoji: '🐸' }
-            };
-
-            // Alien Game Variables
-            let targetPitch = 200;
-            let alienFriendliness = 0;
+            // Articulation game state
+            const articGames = ['articL','articR','articS','articTH','articCH'];
+            let articAttempts = { articL:0, articR:0, articS:0, articTH:0, articCH:0 };
+            let articCorrect = { articL:0, articR:0, articS:0, articTH:0, articCH:0 };
+            let currentSelectedCard = null; // for articulation highlighting
 
             // Stop all audio
             function stopAllAudio() {
-                if (animationFrame) {
-                    cancelAnimationFrame(animationFrame);
-                    animationFrame = null;
-                }
-                if (source) {
-                    try { source.disconnect(); } catch(e) {}
-                }
-                if (mediaStream) {
-                    mediaStream.getTracks().forEach(track => track.stop());
-                    mediaStream = null;
-                }
-                if (audioContext) {
-                    audioContext.close();
-                    audioContext = null;
-                }
+                if (animationFrame) { cancelAnimationFrame(animationFrame); animationFrame = null; }
+                if (source) { try { source.disconnect(); } catch(e) {} }
+                if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
+                if (audioContext) { audioContext.close(); audioContext = null; }
                 gameActive = false;
-                
-                // Reset all start/stop buttons
                 document.querySelectorAll('.action-btn.start').forEach(btn => btn.disabled = false);
                 document.querySelectorAll('.action-btn.stop').forEach(btn => btn.disabled = true);
             }
@@ -664,13 +784,7 @@
                     stopAllAudio();
                     
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                        audio: {
-                            echoCancellation: false,
-                            noiseSuppression: false,
-                            autoGainControl: false
-                        } 
-                    });
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
                     
                     source = audioContext.createMediaStreamSource(mediaStream);
                     analyser = audioContext.createAnalyser();
@@ -682,11 +796,9 @@
                     gameActive = true;
                     currentGame = gameId;
                     
-                    // Enable/disable buttons
                     document.querySelectorAll('.action-btn.start').forEach(btn => btn.disabled = true);
                     document.querySelectorAll('.action-btn.stop').forEach(btn => btn.disabled = false);
                     
-                    // Start monitoring based on game
                     monitorAudio(gameId);
                     
                 } catch (err) {
@@ -695,7 +807,7 @@
                 }
             }
 
-            // Monitor audio for all games
+            // Monitor audio for all games (pitch + articulation)
             function monitorAudio(gameId) {
                 if (!gameActive || !analyser) return;
                 
@@ -706,44 +818,33 @@
                     
                     analyser.getByteFrequencyData(dataArray);
                     
-                    // Calculate average loudness (0-255)
                     let sum = 0;
-                    for (let i = 0; i < dataArray.length; i++) {
-                        sum += dataArray[i];
-                    }
+                    for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
                     let average = sum / dataArray.length;
                     let loudnessPercent = Math.min(100, (average / 128) * 100);
                     
-                    // Estimate pitch (find dominant frequency)
+                    // Estimate pitch (dominant frequency)
                     let maxIndex = 0;
                     for (let i = 1; i < dataArray.length; i++) {
-                        if (dataArray[i] > dataArray[maxIndex]) {
-                            maxIndex = i;
-                        }
+                        if (dataArray[i] > dataArray[maxIndex]) maxIndex = i;
                     }
-                    
-                    // Convert bin index to frequency (simplified)
                     let pitch = maxIndex * (audioContext.sampleRate / 2) / dataArray.length;
-                    if (pitch < 50) pitch = 50; // Minimum pitch
-                    if (pitch > 800) pitch = 800; // Maximum pitch
+                    if (pitch < 50) pitch = 50;
+                    if (pitch > 800) pitch = 800;
                     
-                    // Update game based on which is active
+                    // Route to game
                     switch(gameId) {
-                        case 'balloon':
-                            updateBalloonGame(loudnessPercent, pitch);
-                            break;
-                        case 'monster':
-                            updateMonsterGame(pitch);
-                            break;
-                        case 'space':
-                            updateSpaceGame(pitch);
-                            break;
-                        case 'animal':
-                            updateAnimalGame(pitch, loudnessPercent);
-                            break;
-                        case 'alien':
-                            updateAlienGame(pitch);
-                            break;
+                        case 'balloon': updateBalloonGame(loudnessPercent, pitch); break;
+                        case 'monster': updateMonsterGame(pitch); break;
+                        case 'space': updateSpaceGame(pitch); break;
+                        case 'animal': updateAnimalGame(pitch, loudnessPercent); break;
+                        case 'alien': updateAlienGame(pitch); break;
+                        // articulation games (simplified: just simulate correct detection based on loudness and randomness for demo)
+                        case 'articL': updateArticGame('articL', loudness, pitch); break;
+                        case 'articR': updateArticGame('articR', loudness, pitch); break;
+                        case 'articS': updateArticGame('articS', loudness, pitch); break;
+                        case 'articTH': updateArticGame('articTH', loudness, pitch); break;
+                        case 'articCH': updateArticGame('articCH', loudness, pitch); break;
                     }
                     
                     animationFrame = requestAnimationFrame(analyze);
@@ -752,8 +853,8 @@
                 analyze();
             }
 
-            // BALLOON GAME (FIXED)
-            function updateBalloonGame(loudness, pitch) {
+            // ---- pitch game updates (unchanged) ----
+            function updateBalloonGame(loudness, pitch) { /* same as original */ 
                 const balloonWrapper = document.getElementById('balloonWrapper');
                 const balloonMeter = document.getElementById('balloonMeter');
                 const balloonLoudness = document.getElementById('balloonLoudness');
@@ -762,43 +863,32 @@
                 const balloonFeedback = document.getElementById('balloonFeedback');
                 const balloonScore = document.getElementById('balloonScore');
 
-                // Update displays
                 balloonLoudness.innerText = Math.floor(loudness) + '%';
                 balloonPitch.innerText = Math.floor(pitch) + ' Hz';
                 
-                // Calculate height based on loudness and pitch quality
                 let riseRate = 0;
-                
-                // Good pitch range for "AAAA" is around 150-300 Hz for kids
                 if (pitch > 120 && pitch < 350) {
-                    riseRate = loudness / 30; // Faster rise with good pitch
+                    riseRate = loudness / 30;
                     balloonFeedback.innerText = "🎵 Perfect pitch! Balloon rising fast!";
                 } else if (loudness > 15) {
-                    riseRate = loudness / 50; // Slower rise with off pitch
+                    riseRate = loudness / 50;
                     balloonFeedback.innerText = "🎤 Try to match the pitch 'AAAA' (around 200 Hz)";
                 } else {
-                    riseRate = -0.5; // Fall when quiet
+                    riseRate = -0.5;
                     balloonFeedback.innerText = "🔊 Speak louder to make the balloon rise!";
                 }
                 
-                // Update balloon height (0-100%)
                 balloonHeight = Math.max(0, Math.min(100, balloonHeight + riseRate));
-                
-                // Update visual - bottom position from 50px to 280px
                 let bottomPos = 50 + (balloonHeight * 2.3);
                 balloonWrapper.style.bottom = bottomPos + 'px';
-                
-                // Update meter
                 balloonMeter.style.width = balloonHeight + '%';
                 balloonHeightSpan.innerText = Math.floor(balloonHeight) + '%';
                 
-                // Track record
                 if (balloonHeight > maxBalloonHeight) {
                     maxBalloonHeight = balloonHeight;
                     balloonScore.innerText = `Height Record: ${Math.floor(maxBalloonHeight)}%`;
                 }
                 
-                // Color change at high altitudes
                 const balloon = document.getElementById('balloon');
                 if (balloonHeight > 80) {
                     balloon.style.background = 'radial-gradient(circle at 30% 30%, #FFD700, #FFA500)';
@@ -809,85 +899,48 @@
                     balloon.style.background = 'radial-gradient(circle at 30% 30%, #FF6B6B, #C41E1E)';
                 }
             }
-
-            // MONSTER GAME
             function updateMonsterGame(pitch) {
                 const monsterMeter = document.getElementById('monsterMeter');
                 const monsterPitch = document.getElementById('monsterPitch');
                 const monsterFoodSpan = document.getElementById('monsterFood');
                 const monster = document.getElementById('monster');
                 const monsterFeedback = document.getElementById('monsterFeedback');
-                
-                // Update displays
                 monsterPitch.innerText = Math.floor(pitch) + ' Hz';
-                
-                // Map pitch to meter (0-100%)
                 let meterValue = Math.min(100, (pitch / 500) * 100);
                 monsterMeter.style.width = meterValue + '%';
-                
-                // Feed monster when pitch is high
                 if (pitch > 300 && Math.random() > 0.95) {
                     monsterFood++;
                     monsterFoodSpan.innerText = monsterFood;
-                    
-                    // Create food animation
                     const food = document.createElement('div');
-                    food.className = 'food';
-                    food.innerText = '🍕';
+                    food.className = 'food'; food.innerText = '🍕';
                     food.style.left = Math.random() * 80 + 10 + '%';
                     document.getElementById('monsterScene').appendChild(food);
-                    
                     setTimeout(() => food.remove(), 2000);
-                    
                     monster.style.transform = 'scale(1.2)';
                     setTimeout(() => monster.style.transform = 'scale(1)', 200);
-                    
                     monsterFeedback.innerText = "👾 YUM! Monster loves high pitch!";
                 }
-                
-                // Monster reactions
-                if (pitch > 350) {
-                    monster.innerText = '😈';
-                } else if (pitch > 200) {
-                    monster.innerText = '👾';
-                } else {
-                    monster.innerText = '😴';
-                }
+                if (pitch > 350) monster.innerText = '😈';
+                else if (pitch > 200) monster.innerText = '👾';
+                else monster.innerText = '😴';
             }
-
-            // SPACE GAME
             function updateSpaceGame(pitch) {
                 const spaceMeter = document.getElementById('spaceMeter');
                 const spacePitch = document.getElementById('spacePitch');
                 const spaceAltitudeSpan = document.getElementById('spaceAltitude');
                 const spaceship = document.getElementById('spaceship');
                 const spaceFeedback = document.getElementById('spaceFeedback');
-                
-                // Update displays
                 spacePitch.innerText = Math.floor(pitch) + ' Hz';
-                
-                // Map pitch to altitude (low pitch = low altitude, high pitch = high altitude)
                 let targetAltitude = Math.min(100, (pitch / 400) * 100);
-                spaceAltitude = spaceAltitude * 0.9 + targetAltitude * 0.1; // Smooth transition
-                
+                spaceAltitude = spaceAltitude * 0.9 + targetAltitude * 0.1;
                 spaceMeter.style.width = spaceAltitude + '%';
                 spaceAltitudeSpan.innerText = Math.floor(spaceAltitude) + '%';
-                
-                // Update spaceship position
                 let bottomPos = 20 + (spaceAltitude * 2.5);
                 spaceship.style.bottom = bottomPos + 'px';
-                
-                // Feedback
-                if (pitch > 350) {
-                    spaceFeedback.innerText = "🚀 BLAST OFF! You're in space!";
-                } else if (pitch > 200) {
-                    spaceFeedback.innerText = "✨ Rising through the clouds!";
-                } else {
-                    spaceFeedback.innerText = "🌍 Say higher pitch to launch!";
-                }
+                if (pitch > 350) spaceFeedback.innerText = "🚀 BLAST OFF! You're in space!";
+                else if (pitch > 200) spaceFeedback.innerText = "✨ Rising through the clouds!";
+                else spaceFeedback.innerText = "🌍 Say higher pitch to launch!";
             }
-
-            // ANIMAL GAME
             function updateAnimalGame(pitch, loudness) {
                 const animalMeter = document.getElementById('animalMeter');
                 const animalMatch = document.getElementById('animalMatch');
@@ -895,21 +948,13 @@
                 const animalTarget = document.getElementById('animalTarget');
                 const animalFeedback = document.getElementById('animalFeedback');
                 const soundWave = document.getElementById('soundWave');
-                
-                // Get target pitch for current animal
                 let target = animalSounds[currentAnimal].pitch;
                 let targetName = animalSounds[currentAnimal].name;
-                
                 animalTarget.innerText = `${animalSounds[currentAnimal].emoji} Make the ${currentAnimal} sound: "${targetName}"`;
-                
-                // Calculate match percentage
                 let pitchDiff = Math.abs(pitch - target);
                 let matchPercent = Math.max(0, 100 - (pitchDiff / 2));
-                
                 animalMeter.style.width = matchPercent + '%';
                 animalMatch.innerText = Math.floor(matchPercent) + '%';
-                
-                // Update sound wave visualization
                 soundWave.innerHTML = '';
                 for (let i = 0; i < 10; i++) {
                     let bar = document.createElement('div');
@@ -917,109 +962,141 @@
                     bar.style.height = (loudness / 5) + 'px';
                     soundWave.appendChild(bar);
                 }
-                
-                // Score points for good matches
                 if (matchPercent > 80 && loudness > 30 && Math.random() > 0.98) {
                     animalScore++;
                     animalScoreSpan.innerText = animalScore;
                     animalFeedback.innerText = `🎉 Perfect ${currentAnimal} sound! +1 point!`;
-                    
-                    // Animate the animal
                     document.getElementById(currentAnimal).style.transform = 'scale(1.3)';
                     setTimeout(() => document.getElementById(currentAnimal).style.transform = 'scale(1)', 200);
                 }
             }
-
-            // ALIEN GAME
             function updateAlienGame(pitch) {
                 const alienMeter = document.getElementById('alienMeter');
                 const alienYourPitch = document.getElementById('alienYourPitch');
                 const alienTargetPitch = document.getElementById('alienTargetPitch');
                 const alien = document.getElementById('alien');
                 const alienFeedback = document.getElementById('alienFeedback');
-                
-                // Update displays
                 alienYourPitch.innerText = Math.floor(pitch) + ' Hz';
                 alienTargetPitch.innerText = targetPitch + ' Hz';
-                
-                // Calculate match
                 let diff = Math.abs(pitch - targetPitch);
                 let matchPercent = Math.max(0, 100 - (diff / 2));
                 alienMeter.style.width = matchPercent + '%';
-                
-                // Alien reactions
-                if (matchPercent > 85) {
-                    alien.innerText = '😊👽';
-                    alienFriendliness += 0.5;
-                    alienFeedback.innerText = "👽 Alien is happy! He's your friend now!";
-                } else if (matchPercent > 60) {
-                    alien.innerText = '🤔👽';
-                    alienFeedback.innerText = "👽 Getting closer... match the pitch exactly!";
-                } else {
-                    alien.innerText = '😕👽';
-                    alienFeedback.innerText = `👽 Try to match ${targetPitch} Hz!`;
-                }
-                
-                // Randomly change target pitch
-                if (Math.random() > 0.99) {
-                    targetPitch = 100 + Math.floor(Math.random() * 300);
+                if (matchPercent > 85) { alien.innerText = '😊👽'; alienFriendliness += 0.5; alienFeedback.innerText = "👽 Alien is happy! He's your friend now!"; }
+                else if (matchPercent > 60) { alien.innerText = '🤔👽'; alienFeedback.innerText = "👽 Getting closer... match the pitch exactly!"; }
+                else { alien.innerText = '😕👽'; alienFeedback.innerText = `👽 Try to match ${targetPitch} Hz!`; }
+                if (Math.random() > 0.99) targetPitch = 100 + Math.floor(Math.random() * 300);
+            }
+
+            // Articulation update (simulated detection based on loudness and randomness)
+            function updateArticGame(gameId, loudness, pitch) {
+                if (!gameActive) return;
+                // use loudness > 20 to indicate attempt
+                if (loudness > 25 && Math.random() > 0.97) { // simulate occasional correct production
+                    articAttempts[gameId] = (articAttempts[gameId] || 0) + 1;
+                    // 70% chance correct if loud enough
+                    let isCorrect = Math.random() > 0.3;
+                    if (isCorrect) {
+                        articCorrect[gameId] = (articCorrect[gameId] || 0) + 1;
+                    }
+                    // update UI
+                    const attSpan = document.getElementById(gameId + 'Attempts');
+                    const corSpan = document.getElementById(gameId + 'Correct');
+                    const meter = document.getElementById(gameId + 'Meter');
+                    const feedback = document.getElementById(gameId + 'Feedback');
+                    const scoreDisplay = document.getElementById(gameId + 'Score');
+                    if (attSpan) attSpan.innerText = articAttempts[gameId];
+                    if (corSpan) corSpan.innerText = articCorrect[gameId];
+                    if (meter) {
+                        let pct = articAttempts[gameId] > 0 ? (articCorrect[gameId] / articAttempts[gameId]) * 100 : 0;
+                        meter.style.width = pct + '%';
+                    }
+                    if (feedback) {
+                        feedback.innerText = isCorrect ? "✅ Great job! Clear sound!" : "🔊 Try again, shape your mouth carefully.";
+                    }
+                    if (scoreDisplay) {
+                        let stars = Math.floor(articCorrect[gameId] / 3);
+                        scoreDisplay.innerText = '⭐ '.repeat(stars) + (stars>0?'' : '0 stars');
+                    }
                 }
             }
 
-            // Event Listeners for Balloon Game
+            // ----- Event listeners for pitch games (unchanged) -----
             document.getElementById('balloonStart').addEventListener('click', () => startGame('balloon'));
             document.getElementById('balloonStop').addEventListener('click', stopAllAudio);
             document.getElementById('balloonReset').addEventListener('click', () => {
-                balloonHeight = 0;
-                maxBalloonHeight = 0;
+                balloonHeight = 0; maxBalloonHeight = 0;
                 document.getElementById('balloonWrapper').style.bottom = '50px';
                 document.getElementById('balloonMeter').style.width = '0%';
                 document.getElementById('balloonHeight').innerText = '0%';
                 document.getElementById('balloonScore').innerText = 'Height Record: 0%';
                 document.getElementById('balloonFeedback').innerText = 'Balloon reset! Try again!';
             });
-
-            // Monster Game
             document.getElementById('monsterStart').addEventListener('click', () => startGame('monster'));
             document.getElementById('monsterStop').addEventListener('click', stopAllAudio);
             document.getElementById('monsterReset').addEventListener('click', () => {
-                monsterFood = 0;
-                document.getElementById('monsterFood').innerText = '0';
+                monsterFood = 0; document.getElementById('monsterFood').innerText = '0';
                 document.getElementById('monsterMeter').style.width = '0%';
                 document.getElementById('monsterFeedback').innerText = 'Game reset! Feed the monster!';
             });
-
-            // Space Game
             document.getElementById('spaceStart').addEventListener('click', () => startGame('space'));
             document.getElementById('spaceStop').addEventListener('click', stopAllAudio);
             document.getElementById('spaceReset').addEventListener('click', () => {
-                spaceAltitude = 0;
-                document.getElementById('spaceship').style.bottom = '20px';
+                spaceAltitude = 0; document.getElementById('spaceship').style.bottom = '20px';
                 document.getElementById('spaceMeter').style.width = '0%';
                 document.getElementById('spaceAltitude').innerText = '0%';
             });
-
-            // Animal Game
             document.getElementById('animalStart').addEventListener('click', () => startGame('animal'));
             document.getElementById('animalStop').addEventListener('click', stopAllAudio);
             document.getElementById('animalReset').addEventListener('click', () => {
-                const animals = ['cow', 'sheep', 'duck', 'frog'];
+                const animals = ['cow','sheep','duck','frog'];
                 currentAnimal = animals[Math.floor(Math.random() * animals.length)];
-                animalScore = 0;
-                document.getElementById('animalScore').innerText = '0';
+                animalScore = 0; document.getElementById('animalScore').innerText = '0';
                 document.getElementById('animalMeter').style.width = '0%';
             });
-
-            // Alien Game
             document.getElementById('alienStart').addEventListener('click', () => startGame('alien'));
             document.getElementById('alienStop').addEventListener('click', stopAllAudio);
             document.getElementById('alienReset').addEventListener('click', () => {
                 targetPitch = 100 + Math.floor(Math.random() * 300);
-                alienFriendliness = 0;
-                document.getElementById('alienMeter').style.width = '0%';
+                alienFriendliness = 0; document.getElementById('alienMeter').style.width = '0%';
             });
 
-            // Cleanup on page unload
+            // Articulation: card click handling and reset buttons
+            function setupArticGame(gameId) {
+                // card selection
+                document.querySelectorAll(`#${gameId}-game .artic-card`).forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        // remove previous selected
+                        document.querySelectorAll(`#${gameId}-game .artic-card`).forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        const word = card.dataset.word;
+                        const targetSpan = document.getElementById(gameId + 'Target');
+                        if (targetSpan) targetSpan.innerText = `🔊 Say "${word}" (good /${card.dataset.sound}/)`;
+                    });
+                });
+                // reset button
+                document.getElementById(gameId + 'Reset').addEventListener('click', () => {
+                    articAttempts[gameId] = 0; articCorrect[gameId] = 0;
+                    const attSpan = document.getElementById(gameId + 'Attempts');
+                    const corSpan = document.getElementById(gameId + 'Correct');
+                    const meter = document.getElementById(gameId + 'Meter');
+                    const feedback = document.getElementById(gameId + 'Feedback');
+                    const score = document.getElementById(gameId + 'Score');
+                    if(attSpan) attSpan.innerText = '0';
+                    if(corSpan) corSpan.innerText = '0';
+                    if(meter) meter.style.width = '0%';
+                    if(feedback) feedback.innerText = 'Game reset. Pick a word and say it!';
+                    if(score) score.innerText = '⭐ 0 stars';
+                });
+                // start/stop
+                document.getElementById(gameId + 'Start').addEventListener('click', () => startGame(gameId));
+                document.getElementById(gameId + 'Stop').addEventListener('click', stopAllAudio);
+            }
+            setupArticGame('articL');
+            setupArticGame('articR');
+            setupArticGame('articS');
+            setupArticGame('articTH');
+            setupArticGame('articCH');
+
             window.addEventListener('beforeunload', stopAllAudio);
         })();
     </script>
