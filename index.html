@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speech Articulation Feedback \n Rehabilitation Module</title>
+    <title>Speech Articulation Feedback · Rehabilitation Module</title>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <!-- Meyda for professional audio feature extraction -->
@@ -32,6 +32,27 @@
             border-bottom: 2px solid #dde5f0;
             flex-wrap: wrap;
         }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #1f4f7a;
+            transition: 0.1s;
+        }
+        .nav-btn.game-btn {
+            background: #e67e22;
+            box-shadow: 0 5px 0 #a15518;
+        }
+        .nav-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #1f4f7a; }
         .logout {
             background: #e74c3c;
             color: white;
@@ -266,7 +287,10 @@
 
     <div class="header">
         <h1 style="margin:0;">Speech Articulation Feedback Rehabilitation Module</h1>
-        <button class="logout" id="logoutBtn">Logout</button>
+        <div class="nav-buttons">
+            <button class="nav-btn" id="goToGameBtn">🎮 Play Speech Games</button>
+            <button class="logout" id="logoutBtn">Logout</button>
+        </div>
     </div>
     <div class="greeting" id="greetingMsg">👋 Hello Dipu, ready to start?</div>
 
@@ -430,6 +454,7 @@
     const repeatBtn = document.getElementById('repeatBtn');
     const nextBtn = document.getElementById('nextBtn');
     const logoutBtn = document.getElementById('logoutBtn');
+    const goToGameBtn = document.getElementById('goToGameBtn');
     const accuracyPercent = document.getElementById('accuracyPercent');
     const accuracyBig = document.getElementById('accuracyBigDisplay');
     const finalAvgSpan = document.getElementById('finalAvgValue');
@@ -972,6 +997,11 @@
             if (meydaAnalyzer) meydaAnalyzer.stop();
         }
         alert('Logged out');
+    });
+
+    // Navigate to game page
+    goToGameBtn.addEventListener('click', () => {
+        window.location.href = 'game.html';
     });
 
     // Initialize
