@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Pitch Therapy Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Inter', cursive, sans-serif;
+            background: linear-gradient(145deg, #2C3E50, #3498DB);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .game-header {
+            background: white;
+            border-radius: 60px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+            border: 3px solid #F1C40F;
+        }
+
+        .game-header h1 {
+            color: #2C3E50;
+            font-size: 2rem;
+        }
+
+        .back-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #1F618D;
+            transition: 0.1s;
+        }
+
+        .back-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #1F618D;
+        }
+
+        /* Game Selection Tabs */
+        .game-tabs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.9);
+            padding: 15px 25px;
+            border-radius: 60px;
+            justify-content: center;
+        }
+
+        .game-tab {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #BDC3C7;
+            color: #2C3E50;
+        }
+
+        .game-tab.active {
+            background: #F1C40F;
+            transform: scale(1.05);
+            box-shadow: 0 5px 0 #B7950B;
+        }
+
+        .game-tab.balloon-tab { background: #E67E22; color: white; }
+        .game-tab.pitch-tab { background: #3498DB; color: white; }
+        .game-tab.space-tab { background: #9B59B6; color: white; }
+        .game-tab.animal-tab { background: #2ECC71; color: white; }
+        .game-tab.monster-tab { background: #E74C3C; color: white; }
+
+        /* Game Container */
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 60px;
+            padding: 30px;
+            box-shadow: 0 30px 40px rgba(0, 0, 0, 0.3);
+            border: 4px solid white;
+            min-height: 650px;
+        }
+
+        /* Game 1: Balloon Adventure (Original - FIXED) */
+        .game-area {
+            display: none;
+        }
+
+        .game-area.active {
+            display: block;
+        }
+
+        .balloon-scene {
+            background: linear-gradient(180deg, #87CEEB, #E0F6FF);
+            border-radius: 40px;
+            padding: 20px;
+            position: relative;
+            height: 350px;
+            border: 4px solid white;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .balloon-wrapper {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: bottom 0.1s ease-out;
+            cursor: pointer;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
+        }
+
+        .balloon {
+            width: 120px;
+            height: 150px;
+            background: radial-gradient(circle at 30% 30%, #FF6B6B, #C41E1E);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            border: 4px solid #A52A2A;
+            position: relative;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 50px;
+            background: #8B4513;
+            bottom: -40px;
+            left: 47px;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(2deg); }
+        }
+
+        /* Game 2: Pitch Monster */
+        .monster-scene {
+            background: #2C3E50;
+            border-radius: 40px;
+            padding: 20px;
+            height: 350px;
+            border: 4px solid #E74C3C;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .monster {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8rem;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3));
+            transition: transform 0.1s;
+        }
+
+        .food {
+            position: absolute;
+            font-size: 3rem;
+            animation: fall 2s linear;
+        }
+
+        @keyframes fall {
+            from { top: 0; }
+            to { top: 80%; }
+        }
+
+        /* Game 3: Space Ship */
+        .space-scene {
+            background: #0B0B2B;
+            border-radius: 40px;
+            padding: 20px;
+            height: 350px;
+            border: 4px solid #F1C40F;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(2px 2px at 20px 30px, white, rgba(0,0,0,0)),
+                        radial-gradient(2px 2px at 40px 70px, white, rgba(0,0,0,0)),
+                        radial-gradient(2px 2px at 80px 120px, white, rgba(0,0,0,0));
+            background-size: 200px 200px;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .spaceship {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 5rem;
+            filter: drop-shadow(0 0 20px #F1C40F);
+            transition: bottom 0.1s;
+        }
+
+        /* Game 4: Animal Sounds */
+        .animal-scene {
+            background: #27AE60;
+            border-radius: 40px;
+            padding: 20px;
+            height: 350px;
+            border: 4px solid #F39C12;
+            position: relative;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+        }
+
+        .animal {
+            font-size: 4rem;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .animal:hover {
+            transform: scale(1.2);
+        }
+
+        .sound-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            gap: 5px;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .wave-bar {
+            width: 20px;
+            background: #F1C40F;
+            border-radius: 10px 10px 0 0;
+            transition: height 0.1s;
+        }
+
+        /* Controls */
+        .game-controls {
+            background: #ECF0F1;
+            border-radius: 40px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .target-display {
+            background: #F1C40F;
+            padding: 20px;
+            border-radius: 30px;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 3px solid #B7950B;
+        }
+
+        .meter-container {
+            background: #34495E;
+            border-radius: 30px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .meter-label {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .pitch-meter {
+            background: #2C3E50;
+            height: 30px;
+            border-radius: 30px;
+            overflow: hidden;
+        }
+
+        .pitch-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2ECC71, #F1C40F, #E74C3C);
+            transition: width 0.05s linear;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        .game-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 18px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            transition: 0.1s;
+            min-width: 150px;
+        }
+
+        .action-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+        }
+
+        .action-btn.start { background: #2ECC71; color: white; }
+        .action-btn.stop { background: #E74C3C; color: white; }
+        .action-btn.reset { background: #F39C12; color: white; }
+
+        .feedback-msg {
+            background: #F1C40F;
+            padding: 20px;
+            border-radius: 30px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .score-display {
+            background: #3498DB;
+            color: white;
+            padding: 15px;
+            border-radius: 30px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="game-header">
+            <h1>🎮 Voice Pitch Therapy Games</h1>
+            <button class="back-btn" id="backToIndex">← Back to Therapy</button>
+        </div>
+
+        <!-- Game Tabs -->
+        <div class="game-tabs">
+            <button class="game-tab balloon-tab active" data-game="balloon">🎈 Balloon Rise</button>
+            <button class="game-tab pitch-tab" data-game="monster">👾 Pitch Monster</button>
+            <button class="game-tab space-tab" data-game="space">🚀 Space Ship</button>
+            <button class="game-tab animal-tab" data-game="animal">🐘 Animal Sounds</button>
+            <button class="game-tab monster-tab" data-game="alien">👽 Alien Friend</button>
+        </div>
+
+        <!-- Game Container -->
+        <div class="game-container">
+            <!-- Game 1: Balloon Adventure (FIXED) -->
+            <div id="balloon-game" class="game-area active">
+                <div class="balloon-scene" id="balloonScene">
+                    <div class="balloon-wrapper" id="balloonWrapper" style="bottom: 50px;">
+                        <div class="balloon" id="balloon"></div>
+                    </div>
+                </div>
+                
+                <div class="game-controls">
+                    <div class="target-display" id="balloonTarget">🔊 Say "AAAA" to rise!</div>
+                    
+                    <div class="meter-container">
+                        <div class="meter-label">🎤 Voice Power Meter</div>
+                        <div class="pitch-meter">
+                            <div class="pitch-fill" id="balloonMeter" style="width: 0%;"></div>
+                        </div>
+                        <div class="stats-row">
+                            <span>Loudness: <span id="balloonLoudness">0%</span></span>
+                            <span>Pitch: <span id="balloonPitch">0 Hz</span></span>
+                            <span>Height: <span id="balloonHeight">0%</span></span>
+                        </div>
+                    </div>
+
+                    <div class="game-buttons">
+                        <button class="action-btn start" id="balloonStart">🎤 Start</button>
+                        <button class="action-btn stop" id="balloonStop" disabled>⏹ Stop</button>
+                        <button class="action-btn reset" id="balloonReset">🔄 Reset</button>
+                    </div>
+
+                    <div class="feedback-msg" id="balloonFeedback">
+                        Click Start and say "AAAA" to make the balloon rise!
+                    </div>
+
+                    <div class="score-display" id="balloonScore">
+                        Height Record: 0%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game 2: Pitch Monster -->
+            <div id="monster-game" class="game-area">
+                <div class="monster-scene" id="monsterScene">
+                    <div class="monster" id="monster">👾</div>
+                </div>
+
+                <div class="game-controls">
+                    <div class="target-display">👾 Feed the Monster (high pitch = more food)</div>
+                    
+                    <div class="meter-container">
+                        <div class="meter-label">🎤 Pitch Meter</div>
+                        <div class="pitch-meter">
+                            <div class="pitch-fill" id="monsterMeter" style="width: 0%;"></div>
+                        </div>
+                        <div class="stats-row">
+                            <span>Pitch: <span id="monsterPitch">0 Hz</span></span>
+                            <span>Food: <span id="monsterFood">0</span></span>
+                        </div>
+                    </div>
+
+                    <div class="game-buttons">
+                        <button class="action-btn start" id="monsterStart">🎤 Start</button>
+                        <button class="action-btn stop" id="monsterStop" disabled>⏹ Stop</button>
+                        <button class="action-btn reset" id="monsterReset">🔄 Reset</button>
+                    </div>
+
+                    <div class="feedback-msg" id="monsterFeedback">
+                        Say high pitch sounds (like "EEEE") to feed the monster!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game 3: Space Ship -->
+            <div id="space-game" class="game-area">
+                <div class="space-scene" id="spaceScene">
+                    <div class="stars"></div>
+                    <div class="spaceship" id="spaceship">🚀</div>
+                </div>
+
+                <div class="game-controls">
+                    <div class="target-display">🚀 Launch the Spaceship (low to high pitch)</div>
+                    
+                    <div class="meter-container">
+                        <div class="meter-label">🎤 Pitch Range</div>
+                        <div class="pitch-meter">
+                            <div class="pitch-fill" id="spaceMeter" style="width: 0%;"></div>
+                        </div>
+                        <div class="stats-row">
+                            <span>Pitch: <span id="spacePitch">0 Hz</span></span>
+                            <span>Altitude: <span id="spaceAltitude">0%</span></span>
+                        </div>
+                    </div>
+
+                    <div class="game-buttons">
+                        <button class="action-btn start" id="spaceStart">🎤 Start</button>
+                        <button class="action-btn stop" id="spaceStop" disabled>⏹ Stop</button>
+                        <button class="action-btn reset" id="spaceReset">🔄 Reset</button>
+                    </div>
+
+                    <div class="feedback-msg" id="spaceFeedback">
+                        Glide from low to high pitch to launch the ship!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game 4: Animal Sounds -->
+            <div id="animal-game" class="game-area">
+                <div class="animal-scene" id="animalScene">
+                    <div class="animal" id="cow">🐮</div>
+                    <div class="animal" id="sheep">🐑</div>
+                    <div class="animal" id="duck">🦆</div>
+                    <div class="animal" id="frog">🐸</div>
+                    <div class="sound-wave" id="soundWave"></div>
+                </div>
+
+                <div class="game-controls">
+                    <div class="target-display" id="animalTarget">🐮 Make the cow sound: "MOOO"</div>
+                    
+                    <div class="meter-container">
+                        <div class="meter-label">🎤 Sound Match</div>
+                        <div class="pitch-meter">
+                            <div class="pitch-fill" id="animalMeter" style="width: 0%;"></div>
+                        </div>
+                        <div class="stats-row">
+                            <span>Match: <span id="animalMatch">0%</span></span>
+                            <span>Score: <span id="animalScore">0</span></span>
+                        </div>
+                    </div>
+
+                    <div class="game-buttons">
+                        <button class="action-btn start" id="animalStart">🎤 Start</button>
+                        <button class="action-btn stop" id="animalStop" disabled>⏹ Stop</button>
+                        <button class="action-btn reset" id="animalReset">🔄 New Animal</button>
+                    </div>
+
+                    <div class="feedback-msg" id="animalFeedback">
+                        Click Start and make the animal sound!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game 5: Alien Friend -->
+            <div id="alien-game" class="game-area">
+                <div class="space-scene" style="background: #4A235A;" id="alienScene">
+                    <div class="spaceship" style="font-size: 6rem;" id="alien">👽</div>
+                </div>
+
+                <div class="game-controls">
+                    <div class="target-display">👽 Talk to the Alien (match the pitch)</div>
+                    
+                    <div class="meter-container">
+                        <div class="meter-label">🎤 Pitch Match</div>
+                        <div class="pitch-meter">
+                            <div class="pitch-fill" id="alienMeter" style="width: 0%;"></div>
+                        </div>
+                        <div class="stats-row">
+                            <span>Your Pitch: <span id="alienYourPitch">0 Hz</span></span>
+                            <span>Target: <span id="alienTargetPitch">200 Hz</span></span>
+                        </div>
+                    </div>
+
+                    <div class="game-buttons">
+                        <button class="action-btn start" id="alienStart">🎤 Start</button>
+                        <button class="action-btn stop" id="alienStop" disabled>⏹ Stop</button>
+                        <button class="action-btn reset" id="alienReset">🔄 New Pitch</button>
+                    </div>
+
+                    <div class="feedback-msg" id="alienFeedback">
+                        Match the alien's pitch to make friends!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Navigation
+            document.getElementById('backToIndex').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+
+            // Game tab switching
+            const gameTabs = document.querySelectorAll('.game-tab');
+            const gameAreas = document.querySelectorAll('.game-area');
+
+            gameTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Update active tab
+                    gameTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding game
+                    const gameId = tab.dataset.game;
+                    gameAreas.forEach(area => {
+                        area.classList.remove('active');
+                        if (area.id === gameId + '-game') {
+                            area.classList.add('active');
+                        }
+                    });
+
+                    // Stop any active audio in all games
+                    stopAllAudio();
+                });
+            });
+
+            // Audio variables
+            let audioContext = null;
+            let mediaStream = null;
+            let analyser = null;
+            let source = null;
+            let animationFrame = null;
+            let currentGame = null;
+            let gameActive = false;
+
+            // Balloon Game Variables
+            let balloonHeight = 0;
+            let maxBalloonHeight = 0;
+
+            // Monster Game Variables
+            let monsterFood = 0;
+
+            // Space Game Variables
+            let spaceAltitude = 0;
+
+            // Animal Game Variables
+            let animalScore = 0;
+            let currentAnimal = 'cow';
+            const animalSounds = {
+                cow: { pitch: 120, name: 'MOOO', emoji: '🐮' },
+                sheep: { pitch: 250, name: 'BAAAA', emoji: '🐑' },
+                duck: { pitch: 400, name: 'QUACK', emoji: '🦆' },
+                frog: { pitch: 180, name: 'RIBBIT', emoji: '🐸' }
+            };
+
+            // Alien Game Variables
+            let targetPitch = 200;
+            let alienFriendliness = 0;
+
+            // Stop all audio
+            function stopAllAudio() {
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                    animationFrame = null;
+                }
+                if (source) {
+                    try { source.disconnect(); } catch(e) {}
+                }
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(track => track.stop());
+                    mediaStream = null;
+                }
+                if (audioContext) {
+                    audioContext.close();
+                    audioContext = null;
+                }
+                gameActive = false;
+                
+                // Reset all start/stop buttons
+                document.querySelectorAll('.action-btn.start').forEach(btn => btn.disabled = false);
+                document.querySelectorAll('.action-btn.stop').forEach(btn => btn.disabled = true);
+            }
+
+            // Start audio for specific game
+            async function startGame(gameId) {
+                try {
+                    stopAllAudio();
+                    
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: false,
+                            noiseSuppression: false,
+                            autoGainControl: false
+                        } 
+                    });
+                    
+                    source = audioContext.createMediaStreamSource(mediaStream);
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 2048;
+                    analyser.smoothingTimeConstant = 0.2;
+                    
+                    source.connect(analyser);
+                    
+                    gameActive = true;
+                    currentGame = gameId;
+                    
+                    // Enable/disable buttons
+                    document.querySelectorAll('.action-btn.start').forEach(btn => btn.disabled = true);
+                    document.querySelectorAll('.action-btn.stop').forEach(btn => btn.disabled = false);
+                    
+                    // Start monitoring based on game
+                    monitorAudio(gameId);
+                    
+                } catch (err) {
+                    alert('Please allow microphone access to play!');
+                    console.error(err);
+                }
+            }
+
+            // Monitor audio for all games
+            function monitorAudio(gameId) {
+                if (!gameActive || !analyser) return;
+                
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                function analyze() {
+                    if (!gameActive) return;
+                    
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    // Calculate average loudness (0-255)
+                    let sum = 0;
+                    for (let i = 0; i < dataArray.length; i++) {
+                        sum += dataArray[i];
+                    }
+                    let average = sum / dataArray.length;
+                    let loudnessPercent = Math.min(100, (average / 128) * 100);
+                    
+                    // Estimate pitch (find dominant frequency)
+                    let maxIndex = 0;
+                    for (let i = 1; i < dataArray.length; i++) {
+                        if (dataArray[i] > dataArray[maxIndex]) {
+                            maxIndex = i;
+                        }
+                    }
+                    
+                    // Convert bin index to frequency (simplified)
+                    let pitch = maxIndex * (audioContext.sampleRate / 2) / dataArray.length;
+                    if (pitch < 50) pitch = 50; // Minimum pitch
+                    if (pitch > 800) pitch = 800; // Maximum pitch
+                    
+                    // Update game based on which is active
+                    switch(gameId) {
+                        case 'balloon':
+                            updateBalloonGame(loudnessPercent, pitch);
+                            break;
+                        case 'monster':
+                            updateMonsterGame(pitch);
+                            break;
+                        case 'space':
+                            updateSpaceGame(pitch);
+                            break;
+                        case 'animal':
+                            updateAnimalGame(pitch, loudnessPercent);
+                            break;
+                        case 'alien':
+                            updateAlienGame(pitch);
+                            break;
+                    }
+                    
+                    animationFrame = requestAnimationFrame(analyze);
+                }
+                
+                analyze();
+            }
+
+            // BALLOON GAME (FIXED)
+            function updateBalloonGame(loudness, pitch) {
+                const balloonWrapper = document.getElementById('balloonWrapper');
+                const balloonMeter = document.getElementById('balloonMeter');
+                const balloonLoudness = document.getElementById('balloonLoudness');
+                const balloonPitch = document.getElementById('balloonPitch');
+                const balloonHeightSpan = document.getElementById('balloonHeight');
+                const balloonFeedback = document.getElementById('balloonFeedback');
+                const balloonScore = document.getElementById('balloonScore');
+
+                // Update displays
+                balloonLoudness.innerText = Math.floor(loudness) + '%';
+                balloonPitch.innerText = Math.floor(pitch) + ' Hz';
+                
+                // Calculate height based on loudness and pitch quality
+                let riseRate = 0;
+                
+                // Good pitch range for "AAAA" is around 150-300 Hz for kids
+                if (pitch > 120 && pitch < 350) {
+                    riseRate = loudness / 30; // Faster rise with good pitch
+                    balloonFeedback.innerText = "🎵 Perfect pitch! Balloon rising fast!";
+                } else if (loudness > 15) {
+                    riseRate = loudness / 50; // Slower rise with off pitch
+                    balloonFeedback.innerText = "🎤 Try to match the pitch 'AAAA' (around 200 Hz)";
+                } else {
+                    riseRate = -0.5; // Fall when quiet
+                    balloonFeedback.innerText = "🔊 Speak louder to make the balloon rise!";
+                }
+                
+                // Update balloon height (0-100%)
+                balloonHeight = Math.max(0, Math.min(100, balloonHeight + riseRate));
+                
+                // Update visual - bottom position from 50px to 280px
+                let bottomPos = 50 + (balloonHeight * 2.3);
+                balloonWrapper.style.bottom = bottomPos + 'px';
+                
+                // Update meter
+                balloonMeter.style.width = balloonHeight + '%';
+                balloonHeightSpan.innerText = Math.floor(balloonHeight) + '%';
+                
+                // Track record
+                if (balloonHeight > maxBalloonHeight) {
+                    maxBalloonHeight = balloonHeight;
+                    balloonScore.innerText = `Height Record: ${Math.floor(maxBalloonHeight)}%`;
+                }
+                
+                // Color change at high altitudes
+                const balloon = document.getElementById('balloon');
+                if (balloonHeight > 80) {
+                    balloon.style.background = 'radial-gradient(circle at 30% 30%, #FFD700, #FFA500)';
+                    balloonFeedback.innerText = "🎉 AMAZING! You're at the top!";
+                } else if (balloonHeight > 50) {
+                    balloon.style.background = 'radial-gradient(circle at 30% 30%, #FF8C69, #FF4500)';
+                } else {
+                    balloon.style.background = 'radial-gradient(circle at 30% 30%, #FF6B6B, #C41E1E)';
+                }
+            }
+
+            // MONSTER GAME
+            function updateMonsterGame(pitch) {
+                const monsterMeter = document.getElementById('monsterMeter');
+                const monsterPitch = document.getElementById('monsterPitch');
+                const monsterFoodSpan = document.getElementById('monsterFood');
+                const monster = document.getElementById('monster');
+                const monsterFeedback = document.getElementById('monsterFeedback');
+                
+                // Update displays
+                monsterPitch.innerText = Math.floor(pitch) + ' Hz';
+                
+                // Map pitch to meter (0-100%)
+                let meterValue = Math.min(100, (pitch / 500) * 100);
+                monsterMeter.style.width = meterValue + '%';
+                
+                // Feed monster when pitch is high
+                if (pitch > 300 && Math.random() > 0.95) {
+                    monsterFood++;
+                    monsterFoodSpan.innerText = monsterFood;
+                    
+                    // Create food animation
+                    const food = document.createElement('div');
+                    food.className = 'food';
+                    food.innerText = '🍕';
+                    food.style.left = Math.random() * 80 + 10 + '%';
+                    document.getElementById('monsterScene').appendChild(food);
+                    
+                    setTimeout(() => food.remove(), 2000);
+                    
+                    monster.style.transform = 'scale(1.2)';
+                    setTimeout(() => monster.style.transform = 'scale(1)', 200);
+                    
+                    monsterFeedback.innerText = "👾 YUM! Monster loves high pitch!";
+                }
+                
+                // Monster reactions
+                if (pitch > 350) {
+                    monster.innerText = '😈';
+                } else if (pitch > 200) {
+                    monster.innerText = '👾';
+                } else {
+                    monster.innerText = '😴';
+                }
+            }
+
+            // SPACE GAME
+            function updateSpaceGame(pitch) {
+                const spaceMeter = document.getElementById('spaceMeter');
+                const spacePitch = document.getElementById('spacePitch');
+                const spaceAltitudeSpan = document.getElementById('spaceAltitude');
+                const spaceship = document.getElementById('spaceship');
+                const spaceFeedback = document.getElementById('spaceFeedback');
+                
+                // Update displays
+                spacePitch.innerText = Math.floor(pitch) + ' Hz';
+                
+                // Map pitch to altitude (low pitch = low altitude, high pitch = high altitude)
+                let targetAltitude = Math.min(100, (pitch / 400) * 100);
+                spaceAltitude = spaceAltitude * 0.9 + targetAltitude * 0.1; // Smooth transition
+                
+                spaceMeter.style.width = spaceAltitude + '%';
+                spaceAltitudeSpan.innerText = Math.floor(spaceAltitude) + '%';
+                
+                // Update spaceship position
+                let bottomPos = 20 + (spaceAltitude * 2.5);
+                spaceship.style.bottom = bottomPos + 'px';
+                
+                // Feedback
+                if (pitch > 350) {
+                    spaceFeedback.innerText = "🚀 BLAST OFF! You're in space!";
+                } else if (pitch > 200) {
+                    spaceFeedback.innerText = "✨ Rising through the clouds!";
+                } else {
+                    spaceFeedback.innerText = "🌍 Say higher pitch to launch!";
+                }
+            }
+
+            // ANIMAL GAME
+            function updateAnimalGame(pitch, loudness) {
+                const animalMeter = document.getElementById('animalMeter');
+                const animalMatch = document.getElementById('animalMatch');
+                const animalScoreSpan = document.getElementById('animalScore');
+                const animalTarget = document.getElementById('animalTarget');
+                const animalFeedback = document.getElementById('animalFeedback');
+                const soundWave = document.getElementById('soundWave');
+                
+                // Get target pitch for current animal
+                let target = animalSounds[currentAnimal].pitch;
+                let targetName = animalSounds[currentAnimal].name;
+                
+                animalTarget.innerText = `${animalSounds[currentAnimal].emoji} Make the ${currentAnimal} sound: "${targetName}"`;
+                
+                // Calculate match percentage
+                let pitchDiff = Math.abs(pitch - target);
+                let matchPercent = Math.max(0, 100 - (pitchDiff / 2));
+                
+                animalMeter.style.width = matchPercent + '%';
+                animalMatch.innerText = Math.floor(matchPercent) + '%';
+                
+                // Update sound wave visualization
+                soundWave.innerHTML = '';
+                for (let i = 0; i < 10; i++) {
+                    let bar = document.createElement('div');
+                    bar.className = 'wave-bar';
+                    bar.style.height = (loudness / 5) + 'px';
+                    soundWave.appendChild(bar);
+                }
+                
+                // Score points for good matches
+                if (matchPercent > 80 && loudness > 30 && Math.random() > 0.98) {
+                    animalScore++;
+                    animalScoreSpan.innerText = animalScore;
+                    animalFeedback.innerText = `🎉 Perfect ${currentAnimal} sound! +1 point!`;
+                    
+                    // Animate the animal
+                    document.getElementById(currentAnimal).style.transform = 'scale(1.3)';
+                    setTimeout(() => document.getElementById(currentAnimal).style.transform = 'scale(1)', 200);
+                }
+            }
+
+            // ALIEN GAME
+            function updateAlienGame(pitch) {
+                const alienMeter = document.getElementById('alienMeter');
+                const alienYourPitch = document.getElementById('alienYourPitch');
+                const alienTargetPitch = document.getElementById('alienTargetPitch');
+                const alien = document.getElementById('alien');
+                const alienFeedback = document.getElementById('alienFeedback');
+                
+                // Update displays
+                alienYourPitch.innerText = Math.floor(pitch) + ' Hz';
+                alienTargetPitch.innerText = targetPitch + ' Hz';
+                
+                // Calculate match
+                let diff = Math.abs(pitch - targetPitch);
+                let matchPercent = Math.max(0, 100 - (diff / 2));
+                alienMeter.style.width = matchPercent + '%';
+                
+                // Alien reactions
+                if (matchPercent > 85) {
+                    alien.innerText = '😊👽';
+                    alienFriendliness += 0.5;
+                    alienFeedback.innerText = "👽 Alien is happy! He's your friend now!";
+                } else if (matchPercent > 60) {
+                    alien.innerText = '🤔👽';
+                    alienFeedback.innerText = "👽 Getting closer... match the pitch exactly!";
+                } else {
+                    alien.innerText = '😕👽';
+                    alienFeedback.innerText = `👽 Try to match ${targetPitch} Hz!`;
+                }
+                
+                // Randomly change target pitch
+                if (Math.random() > 0.99) {
+                    targetPitch = 100 + Math.floor(Math.random() * 300);
+                }
+            }
+
+            // Event Listeners for Balloon Game
+            document.getElementById('balloonStart').addEventListener('click', () => startGame('balloon'));
+            document.getElementById('balloonStop').addEventListener('click', stopAllAudio);
+            document.getElementById('balloonReset').addEventListener('click', () => {
+                balloonHeight = 0;
+                maxBalloonHeight = 0;
+                document.getElementById('balloonWrapper').style.bottom = '50px';
+                document.getElementById('balloonMeter').style.width = '0%';
+                document.getElementById('balloonHeight').innerText = '0%';
+                document.getElementById('balloonScore').innerText = 'Height Record: 0%';
+                document.getElementById('balloonFeedback').innerText = 'Balloon reset! Try again!';
+            });
+
+            // Monster Game
+            document.getElementById('monsterStart').addEventListener('click', () => startGame('monster'));
+            document.getElementById('monsterStop').addEventListener('click', stopAllAudio);
+            document.getElementById('monsterReset').addEventListener('click', () => {
+                monsterFood = 0;
+                document.getElementById('monsterFood').innerText = '0';
+                document.getElementById('monsterMeter').style.width = '0%';
+                document.getElementById('monsterFeedback').innerText = 'Game reset! Feed the monster!';
+            });
+
+            // Space Game
+            document.getElementById('spaceStart').addEventListener('click', () => startGame('space'));
+            document.getElementById('spaceStop').addEventListener('click', stopAllAudio);
+            document.getElementById('spaceReset').addEventListener('click', () => {
+                spaceAltitude = 0;
+                document.getElementById('spaceship').style.bottom = '20px';
+                document.getElementById('spaceMeter').style.width = '0%';
+                document.getElementById('spaceAltitude').innerText = '0%';
+            });
+
+            // Animal Game
+            document.getElementById('animalStart').addEventListener('click', () => startGame('animal'));
+            document.getElementById('animalStop').addEventListener('click', stopAllAudio);
+            document.getElementById('animalReset').addEventListener('click', () => {
+                const animals = ['cow', 'sheep', 'duck', 'frog'];
+                currentAnimal = animals[Math.floor(Math.random() * animals.length)];
+                animalScore = 0;
+                document.getElementById('animalScore').innerText = '0';
+                document.getElementById('animalMeter').style.width = '0%';
+            });
+
+            // Alien Game
+            document.getElementById('alienStart').addEventListener('click', () => startGame('alien'));
+            document.getElementById('alienStop').addEventListener('click', stopAllAudio);
+            document.getElementById('alienReset').addEventListener('click', () => {
+                targetPitch = 100 + Math.floor(Math.random() * 300);
+                alienFriendliness = 0;
+                document.getElementById('alienMeter').style.width = '0%';
+            });
+
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', stopAllAudio);
+        })();
+    </script>
+</body>
+</html>
